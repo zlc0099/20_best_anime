@@ -21,6 +21,7 @@ const BGM_CACHE = path.join(CACHE_DIR, 'bangumi-data.json');
 const START_YEAR = 1990;
 const END_YEAR = 2026;
 const PAGE_SIZE = 50;
+const TOP_PER_YEAR = 20;
 const THROTTLE_MS = 1200;
 const FORMATS = ['TV', 'TV_SHORT', 'MOVIE', 'OVA', 'ONA', 'SPECIAL'];
 
@@ -203,7 +204,8 @@ function toEntry(media, lookup) {
 
 async function fetchYearFromAniList(year) {
   const results = [];
-  for (let page = 1; page <= 40; page++) {
+  const pagesToFetch = Math.max(1, Math.ceil(TOP_PER_YEAR / PAGE_SIZE));
+  for (let page = 1; page <= pagesToFetch; page++) {
     const cacheFile = path.join(ANILIST_CACHE, `${year}-${page}.json`);
     let data = refresh ? null : await readJson(cacheFile);
 
@@ -268,21 +270,20 @@ async function main() {
     const media = await fetchYearFromAniList(year);
     const entries = [];
     const seen = new Set();
-    let withCn = 0;
 
     for (const item of media) {
       const assignedYear = item.seasonYear || item.startDate?.year;
       if (assignedYear !== year || seen.has(item.id)) continue;
       seen.add(item.id);
-      const entry = toEntry(item, lookup);
-      if (entry.cn) withCn++;
-      entries.push(entry);
+      entries.push(toEntry(item, lookup));
     }
 
     entries.sort((a, b) => b.pop - a.pop);
-    await writeFile(path.join(YEARS_DIR, `${year}.json`), JSON.stringify(entries));
+    const topEntries = entries.slice(0, TOP_PER_YEAR);
+    const topWithCn = topEntries.filter((entry) => entry.cn).length;
+    await writeFile(path.join(YEARS_DIR, `${year}.json`), JSON.stringify(topEntries));
     console.log(
-      `[${year}] ${entries.length} 部，中文名 ${withCn} 部 (${Math.round((withCn / Math.max(entries.length, 1)) * 100)}%)`,
+      `[${year}] 热门 ${topEntries.length} 部 / 候选 ${entries.length}，中文名 ${topWithCn} 部 (${Math.round((topWithCn / Math.max(topEntries.length, 1)) * 100)}%)`,
     );
   }
 

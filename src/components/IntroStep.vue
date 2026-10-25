@@ -93,6 +93,7 @@ function submit() {
         <ul class="info-list">
           <li><span>时间跨度</span><b>1990 — 2026</b></li>
           <li><span>可选年份</span><b>37 年</b></li>
+          <li><span>每年候选</span><b>热度前 20</b></li>
           <li><span>需要选满</span><b>20 年</b></li>
         </ul>
 
