@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { toBlob } from 'html-to-image';
 import PosterCanvas from './PosterCanvas.vue';
 import { showToast } from '../composables/useToast.js';
@@ -15,7 +15,15 @@ const stageRef = ref(null);
 const posterRef = ref(null);
 const scale = ref(0.4);
 const busy = ref(false);
+const covers = ref({});
+const coverTotal = ref(0);
+const coverDone = ref(0);
+const coverFailed = ref(0);
+const coversLoading = ref(false);
+const COVER_CONCURRENCY = 5;
 let resizeObserver = null;
+let coverLoadToken = 0;
+let coverControllers = [];
 
 const firstYear = computed(() => props.items[0]?.year ?? '—');
 const lastYear = computed(() => props.items[props.items.length - 1]?.year ?? '—');
@@ -23,6 +31,19 @@ const canShare = computed(
   () => typeof navigator !== 'undefined' && typeof navigator.share === 'function',
 );
 const filename = computed(() => `${safeFilename(props.nickname)}-二十年番单.png`);
+const coverStatus = computed(() => {
+  if (coversLoading.value) {
+    return `正在载入封面 ${coverDone.value} / ${coverTotal.value}…`;
+  }
+  if (coverFailed.value) return `有 ${coverFailed.value} 张封面未载入，已用文字占位。`;
+  return '';
+});
+
+watch(
+  () => props.items,
+  () => loadCovers(),
+  { immediate: true },
+);
 
 onMounted(() => {
   updateScale();
@@ -30,17 +51,106 @@ onMounted(() => {
   if (stageRef.value) resizeObserver.observe(stageRef.value);
 });
 
-onBeforeUnmount(() => resizeObserver?.disconnect());
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
+  cancelCoverLoads();
+});
 
 function updateScale() {
   if (!stageRef.value) return;
   scale.value = stageRef.value.clientWidth / 1080;
 }
 
+function cancelCoverLoads() {
+  coverLoadToken += 1;
+  coverControllers.forEach((controller) => controller.abort());
+  coverControllers = [];
+}
+
+function coverCandidateUrls(anime) {
+  const base = anime.coverLarge || anime.cover;
+  if (!base) return [];
+  // AniList 的 small 封面放进 5 列网格会偏糊，优先取 medium
+  const medium = base.replace('/cover/small/', '/cover/medium/');
+  return [...new Set([medium, anime.cover].filter(Boolean))];
+}
+
+async function fetchCoverData(anime) {
+  const urls = coverCandidateUrls(anime);
+  if (!urls.length) throw new Error('没有封面地址');
+  let lastError = null;
+
+  for (const url of urls) {
+    const controller = new AbortController();
+    coverControllers.push(controller);
+    const timer = window.setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch(url, {
+        mode: 'cors',
+        cache: 'force-cache',
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      if (!blob.type.startsWith('image/')) throw new Error('返回内容不是图片');
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      lastError = error;
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  throw lastError || new Error('封面载入失败');
+}
+
+async function loadCovers() {
+  const token = ++coverLoadToken;
+  coverControllers.forEach((controller) => controller.abort());
+  coverControllers = [];
+  covers.value = {};
+  coverTotal.value = props.items.length;
+  coverDone.value = 0;
+  coverFailed.value = 0;
+  coversLoading.value = true;
+
+  const queue = props.items.map((item) => item.anime);
+  const workers = Array.from({ length: COVER_CONCURRENCY }, async () => {
+    while (queue.length && token === coverLoadToken) {
+      const anime = queue.shift();
+      try {
+        const dataUrl = await fetchCoverData(anime);
+        if (token === coverLoadToken) covers.value[anime.id] = dataUrl;
+      } catch (error) {
+        if (token === coverLoadToken) {
+          coverFailed.value += 1;
+          console.warn('封面载入失败', anime.id, error);
+        }
+      } finally {
+        if (token === coverLoadToken) coverDone.value += 1;
+      }
+    }
+  });
+
+  await Promise.all(workers);
+  if (token === coverLoadToken) {
+    coversLoading.value = false;
+    await nextTick();
+  }
+}
+
 async function makeBlob() {
+  if (coversLoading.value) throw new Error('封面尚未载入完成');
   const node = posterRef.value?.getNode();
   if (!node) throw new Error('海报尚未准备好');
   if (document.fonts?.ready) await document.fonts.ready;
+  const images = [...node.querySelectorAll('img')];
+  await Promise.all(images.map((image) => image.decode?.().catch(() => {})));
   await nextTick();
   const blob = await toBlob(node, {
     width: 1080,
@@ -48,7 +158,7 @@ async function makeBlob() {
     canvasWidth: 1080,
     canvasHeight: 1920,
     pixelRatio: 1,
-    backgroundColor: '#f4efe4',
+    backgroundColor: '#f7fafc',
     cacheBust: true,
   });
   if (!blob) throw new Error('图片生成失败');
@@ -113,7 +223,7 @@ async function share() {
       <div class="poster-stage">
         <div ref="stageRef" class="poster-frame">
           <div class="poster-scaler" :style="{ transform: `scale(${scale})` }">
-            <PosterCanvas ref="posterRef" :nickname="nickname" :items="items" />
+            <PosterCanvas ref="posterRef" :nickname="nickname" :items="items" :covers="covers" />
           </div>
         </div>
       </div>
@@ -123,7 +233,7 @@ async function share() {
 
         <h1>你的二十年，<br />已经排好了。</h1>
         <p class="lede">
-          纯文字排版，1080 × 1920。保存下来，或者分享给同好——这是只属于你的动漫编年史。
+          5 列 × 4 行封面表格，1080 × 1920。保存下来，或者分享给同好——这是只属于你的动漫编年史。
         </p>
 
         <ul class="poster-meta">
@@ -133,14 +243,19 @@ async function share() {
         </ul>
 
         <div class="poster-actions">
-          <button class="btn btn-primary" type="button" :disabled="busy" @click="download">
-            {{ busy ? '正在生成…' : '保存图片' }}
+          <button
+            class="btn btn-primary"
+            type="button"
+            :disabled="busy || coversLoading"
+            @click="download"
+          >
+            {{ coversLoading ? '载入封面中…' : busy ? '正在生成…' : '保存图片' }}
           </button>
           <button
             v-if="canShare"
             class="btn btn-glass"
             type="button"
-            :disabled="busy"
+            :disabled="busy || coversLoading"
             @click="share"
           >
             系统分享
@@ -150,9 +265,17 @@ async function share() {
           </button>
         </div>
 
+        <p
+          v-if="coverStatus"
+          class="cover-status"
+          :class="{ warn: !coversLoading && coverFailed }"
+        >
+          {{ coverStatus }}
+        </p>
+
         <p class="poster-note">
           手机端如果没有自动下载，可以长按海报保存。<br />
-          海报不含封面图，只记录你的选择。
+          封面来自 AniList，仅用于这张个人番单。
         </p>
 
         <button class="text-link danger-link" type="button" @click="emit('reset')">

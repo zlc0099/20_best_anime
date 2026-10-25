@@ -1,29 +1,43 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { displayTitle, nameFontSize, posterTitleFontSize } from '../utils/anime.js';
+import { displayTitle, nameFontSize } from '../utils/anime.js';
 
 const props = defineProps({
   nickname: { type: String, default: '' },
   items: { type: Array, default: () => [] },
+  covers: { type: Object, default: () => ({}) },
 });
 
 const root = ref(null);
 defineExpose({ getNode: () => root.value });
 
 const rows = computed(() =>
-  props.items.map(({ year, anime }) => ({ year, title: displayTitle(anime) })),
+  props.items.map(({ year, anime }) => {
+    const title = displayTitle(anime);
+    return {
+      year,
+      title,
+      initial: Array.from(title)[0] || '番',
+      cover: props.covers?.[anime.id] || null,
+      tone: decadeTone(year),
+    };
+  }),
 );
 const sizedName = computed(() => nameFontSize(props.nickname));
-
-function titleSize(title) {
-  return posterTitleFontSize(title);
-}
 
 function decadeTone(year) {
   if (year < 2000) return 'tone-indigo';
   if (year < 2010) return 'tone-pink';
   if (year < 2020) return 'tone-emerald';
   return 'tone-indigo';
+}
+
+function titleSize(title) {
+  const length = Array.from(title || '').length;
+  if (length <= 12) return 16;
+  if (length <= 18) return 14.5;
+  if (length <= 24) return 13;
+  return 12;
 }
 </script>
 
@@ -49,23 +63,25 @@ function decadeTone(year) {
         <p class="p-sub">近20年喜欢的动漫作品</p>
         <div class="p-rule" aria-hidden="true"></div>
 
-        <ol class="p-list">
-          <li v-for="(row, index) in rows" :key="row.year" class="p-row">
-            <span class="p-index">{{ String(index + 1).padStart(2, '0') }}</span>
-            <span class="p-year" :class="decadeTone(row.year)">{{ row.year }}</span>
-            <span
+        <div class="p-grid">
+          <figure v-for="row in rows" :key="row.year" class="p-cell">
+            <span class="p-year" :class="row.tone">{{ row.year }}</span>
+            <div class="p-cover">
+              <img v-if="row.cover" :src="row.cover" alt="" />
+              <span v-else class="p-cover-fallback" aria-hidden="true">{{ row.initial }}</span>
+            </div>
+            <figcaption
               class="p-title"
-              :class="{ long: Array.from(row.title).length > 28 }"
               :style="{ fontSize: `${titleSize(row.title)}px` }"
             >
               {{ row.title }}
-            </span>
-          </li>
-        </ol>
+            </figcaption>
+          </figure>
+        </div>
 
         <div class="p-foot">
           <span>20 部 · 37 年</span>
-          <span class="p-source">数据：AniList · bangumi-data</span>
+          <span class="p-source">封面与数据：AniList · bangumi-data</span>
           <span>二十年番单</span>
         </div>
       </div>
@@ -203,7 +219,7 @@ function decadeTone(year) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 62px 64px 56px;
+  padding: 50px 56px 42px;
 }
 
 .p-topline {
@@ -219,19 +235,19 @@ function decadeTone(year) {
 
 .p-name {
   max-width: 820px;
-  margin: 46px 0 0;
+  margin: 28px 0 0;
   color: #ffffff;
   font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.05;
   letter-spacing: 0.02em;
 }
 
 .p-sub {
-  margin: 18px 0 0;
+  margin: 13px 0 0;
   color: rgba(247, 250, 252, 0.72);
   font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 25px;
+  font-size: 23px;
   line-height: 1.6;
   letter-spacing: 0.06em;
 }
@@ -239,7 +255,7 @@ function decadeTone(year) {
 .p-rule {
   flex: none;
   height: 2px;
-  margin-top: 30px;
+  margin-top: 22px;
   background: linear-gradient(
     to right,
     #818cf8 0,
@@ -249,74 +265,91 @@ function decadeTone(year) {
   );
 }
 
-.p-list {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-  margin: 22px 0 12px;
-  padding: 0;
-  list-style: none;
-}
-
-.p-row {
+.p-grid {
   display: grid;
   flex: 1;
-  grid-template-columns: 48px 92px minmax(0, 1fr);
-  align-items: center;
-  column-gap: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-content: center;
+  column-gap: 14px;
+  row-gap: 28px;
+  min-height: 0;
+  padding-top: 8px;
 }
 
-.p-row:first-child {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.p-index {
-  color: rgba(247, 250, 252, 0.32);
-  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+.p-cell {
+  position: relative;
+  min-width: 0;
 }
 
 .p-year {
+  position: absolute;
+  z-index: 3;
+  top: -7px;
+  left: 7px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  box-shadow: 0 6px 14px -8px rgba(26, 32, 44, 0.8);
+  color: #ffffff;
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 25px;
+  font-size: 11px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
 }
 
 .p-year.tone-indigo {
-  color: #a5b4fc;
+  background: #4f46e5;
 }
 
 .p-year.tone-pink {
-  color: #f9a8d4;
+  background: #be185d;
 }
 
 .p-year.tone-emerald {
-  color: #6ee7b7;
+  background: #047857;
+}
+
+.p-cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 16px 26px -22px rgba(0, 0, 0, 0.8);
+}
+
+.p-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.p-cover-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, rgba(99, 102, 241, 0.3), rgba(26, 32, 44, 0.4));
+  color: rgba(199, 210, 254, 0.7);
+  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
+  font-size: 40px;
+  font-weight: 500;
 }
 
 .p-title {
-  overflow: hidden;
-  color: #f7fafc;
-  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 30px;
-  font-weight: 500;
-  line-height: 1.25;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.p-title.long {
   display: -webkit-box;
   overflow: hidden;
-  line-height: 1.3;
-  white-space: normal;
+  min-height: 2.8em;
+  margin-top: 7px;
+  color: #f7fafc;
+  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
+  font-weight: 500;
+  line-height: 1.4;
   text-overflow: ellipsis;
+  word-break: break-word;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }

@@ -1,6 +1,6 @@
 # 二十年番单 · 20 Best Anime
 
-从 1990–2026 的 37 年里挑出 20 年，每年选一部最喜欢的动画，生成一张 1080 × 1920 的纯文字番单海报。
+从 1990–2026 的 37 年里挑出 20 年，每年选一部最喜欢的动画，生成一张 1080 × 1920、5 列 × 4 行的封面番单海报。
 
 视觉小说（ADV）风格：浅色天空场景、半透明深色对话面板、彩色角色铭牌、L 形角饰与毛玻璃卡片。
 
@@ -66,7 +66,7 @@ npm run data -- --refresh   # 忽略本地缓存重新请求
 - 元数据、评分、封面：[AniList](https://anilist.co)
 - 简体中文名：[bangumi-data](https://github.com/bangumi-data/bangumi-data)，[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
-封面仅用于站内识别，不会进入导出海报。海报只包含文字与年份。
+封面会随海报一起导出，仅用于个人番单记录；页面与海报保留 AniList / bangumi-data 署名。
 
 ## 结构
 
@@ -93,4 +93,4 @@ scripts/fetch-data.mjs     数据生成脚本
 - 年份按 AniList 的播出年份归档；包含 TV、TV 短篇、剧场版、OVA、ONA、特别篇，排除 MUSIC 与成人内容。
 - 2026 年只包含目前已收录的作品。
 - 早期冷门作品可能没有简体中文名，会回退显示日文原名；搜索支持中文名、日文名和罗马音。
-- 导出使用 [`html-to-image`](https://github.com/bubkoo/html-to-image)，海报不含外部图片，因此不受 Canvas 跨域限制。
+- 导出使用 [`html-to-image`](https://github.com/bubkoo/html-to-image)。导出前会把封面通过 CORS 抓取并转成 data URL，画布不会跨域污染；封面加载失败时使用首字占位，仍可正常导出。

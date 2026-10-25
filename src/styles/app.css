@@ -1722,6 +1722,18 @@ img {
   margin-top: 24px;
 }
 
+.cover-status {
+  margin: 12px 0 0;
+  color: rgba(247, 250, 252, 0.65);
+  font-family: var(--sans);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.cover-status.warn {
+  color: #f9a8d4;
+}
+
 .poster-note {
   margin: 18px 0 0;
   color: rgba(247, 250, 252, 0.55);
