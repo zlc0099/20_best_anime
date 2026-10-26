@@ -43,13 +43,6 @@ function titleSize(title) {
 
 <template>
   <div ref="root" class="poster" role="group" aria-label="番单海报">
-    <div class="p-scene" aria-hidden="true">
-      <span class="p-orb"></span>
-      <span class="p-silhouette p-s1"></span>
-      <span class="p-silhouette p-s2"></span>
-      <span class="p-silhouette p-s3"></span>
-    </div>
-
     <div class="p-panel">
       <span class="p-plate">番单</span>
 
@@ -85,8 +78,6 @@ function titleSize(title) {
           <span>二十年番单</span>
         </div>
       </div>
-
-      <div class="p-ghost" aria-hidden="true">20</div>
     </div>
   </div>
 </template>
@@ -96,118 +87,41 @@ function titleSize(title) {
   position: relative;
   width: 1440px;
   height: auto;
-  padding: 36px;
+  padding: 48px;
   overflow: hidden;
   background:
-    linear-gradient(180deg, #eef2ff 0%, #f7fafc 52%, #fdf2f8 100%);
-  color: #f7fafc;
+    radial-gradient(900px 620px at 6% -6%, #e4f5ff 0%, transparent 62%),
+    radial-gradient(900px 680px at 104% 22%, #e2fbf2 0%, transparent 64%),
+    radial-gradient(760px 560px at 52% 108%, #fdeef6 0%, transparent 62%),
+    linear-gradient(180deg, #f6fbff 0%, #eaf5fd 100%);
+  color: #1b3550;
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-}
-
-.p-scene {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.p-orb {
-  position: absolute;
-  top: 90px;
-  right: 110px;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 35% 32%,
-    rgba(255, 255, 255, 0.95),
-    rgba(165, 180, 252, 0.38) 58%,
-    rgba(165, 180, 252, 0) 72%
-  );
-  filter: blur(1px);
-}
-
-.p-silhouette {
-  position: absolute;
-  bottom: -140px;
-  border-radius: 50% 50% 0 0 / 82% 82% 0 0;
-  background: rgba(74, 85, 104, 0.1);
-}
-
-.p-s1 {
-  left: -90px;
-  width: 560px;
-  height: 680px;
-}
-
-.p-s2 {
-  right: -80px;
-  width: 460px;
-  height: 560px;
-  background: rgba(236, 72, 153, 0.08);
-}
-
-.p-s3 {
-  left: 400px;
-  width: 260px;
-  height: 340px;
-  background: rgba(99, 102, 241, 0.1);
 }
 
 .p-panel {
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 8px;
-  background:
-    radial-gradient(800px 420px at 100% 0%, rgba(99, 102, 241, 0.22), transparent 62%),
-    radial-gradient(600px 360px at 0% 100%, rgba(236, 72, 153, 0.12), transparent 65%),
-    rgba(26, 32, 44, 0.94);
-  box-shadow: 0 30px 80px -40px rgba(26, 32, 44, 0.65);
-}
-
-.p-panel::before,
-.p-panel::after {
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  border-color: rgba(165, 180, 252, 0.55);
-  border-style: solid;
-  border-width: 0;
-  content: "";
-  pointer-events: none;
-}
-
-.p-panel::before {
-  top: 16px;
-  left: 16px;
-  border-top-width: 2px;
-  border-left-width: 2px;
-  border-top-left-radius: 3px;
-}
-
-.p-panel::after {
-  right: 16px;
-  bottom: 16px;
-  border-right-width: 2px;
-  border-bottom-width: 2px;
-  border-bottom-right-radius: 3px;
+  border: 1px solid #e3eef8;
+  border-radius: 32px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(31, 58, 82, 0.12);
 }
 
 .p-plate {
   position: absolute;
   z-index: 3;
-  top: -16px;
-  left: 44px;
+  top: -19px;
+  left: 52px;
   display: inline-flex;
   align-items: center;
-  padding: 4px 16px;
-  border-radius: 4px;
-  background: #4f46e5;
+  padding: 5px 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3f97cb, #226e9b);
   color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   line-height: 1.5;
-  box-shadow: 0 8px 18px -10px rgba(79, 70, 229, 0.7);
+  box-shadow: 0 8px 18px rgba(31, 58, 82, 0.18);
 }
 
 .p-body {
@@ -215,50 +129,48 @@ function titleSize(title) {
   z-index: 2;
   display: flex;
   flex-direction: column;
-  padding: 48px 52px 40px;
+  padding: 56px 56px 42px;
 }
 
 .p-topline {
   display: flex;
   justify-content: space-between;
   gap: 24px;
-  color: rgba(247, 250, 252, 0.58);
-  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 20px;
-  letter-spacing: 0.02em;
+  color: #5c7f99;
+  font-family: "Inter", -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.04em;
   line-height: 1.5;
 }
 
 .p-name {
   max-width: 1180px;
-  margin: 32px 0 0;
-  color: #ffffff;
-  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: 0.02em;
+  margin: 28px 0 0;
+  color: #17395a;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
 }
 
 .p-sub {
-  margin: 16px 0 0;
-  color: rgba(247, 250, 252, 0.72);
-  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 28px;
+  margin: 12px 0 0;
+  color: #2b4763;
+  font-size: 27px;
   line-height: 1.6;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
 }
 
 .p-rule {
   flex: none;
-  height: 2px;
+  width: 100%;
+  height: 4px;
   margin-top: 26px;
-  background: linear-gradient(
-    to right,
-    #818cf8 0,
-    #818cf8 150px,
-    rgba(255, 255, 255, 0.14) 150px,
-    rgba(255, 255, 255, 0.14) 100%
-  );
+  border-radius: 2px;
+  background: linear-gradient(90deg, #45a7dd 0%, #6fc6a5 58%, rgba(111, 198, 165, 0) 100%);
+  opacity: 0.85;
 }
 
 .p-grid {
@@ -278,36 +190,44 @@ function titleSize(title) {
 }
 
 .p-year {
-  margin-top: 4px;
-  color: #a5b4fc;
-  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 17px;
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 1px 12px;
+  border-radius: 999px;
+  background: #e6f4ff;
+  color: #226b99;
+  font-family: "Inter", -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+  font-size: 16px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
-  line-height: 1.5;
-}
-
-.p-year.tone-indigo {
-  color: #a5b4fc;
+  line-height: 1.7;
 }
 
 .p-year.tone-pink {
-  color: #f9a8d4;
+  background: #ffe9f1;
+  color: #b63e6b;
 }
 
 .p-year.tone-emerald {
-  color: #6ee7b7;
+  background: #e3f7ee;
+  color: #2c7f61;
+}
+
+.p-year.tone-indigo {
+  background: #e6f4ff;
+  color: #226b99;
 }
 
 .p-cover {
   position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 16px 26px -22px rgba(0, 0, 0, 0.8);
+  border: 1px solid #e3eef8;
+  border-radius: 12px;
+  background: #eef7fd;
+  box-shadow: 0 10px 24px rgba(31, 58, 82, 0.12);
 }
 
 .p-cover img {
@@ -322,11 +242,10 @@ function titleSize(title) {
   inset: 0;
   display: grid;
   place-items: center;
-  background: linear-gradient(160deg, rgba(99, 102, 241, 0.3), rgba(26, 32, 44, 0.4));
-  color: rgba(199, 210, 254, 0.7);
-  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 48px;
-  font-weight: 500;
+  background: linear-gradient(160deg, #eff9ff, #d8ecfa);
+  color: rgba(42, 127, 180, 0.55);
+  font-size: 50px;
+  font-weight: 700;
 }
 
 .p-title {
@@ -334,9 +253,9 @@ function titleSize(title) {
   overflow: hidden;
   min-height: 2.8em;
   margin-top: 8px;
-  color: #f7fafc;
-  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-weight: 500;
+  color: #17395a;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-weight: 600;
   line-height: 1.4;
   text-overflow: ellipsis;
   word-break: break-word;
@@ -352,10 +271,10 @@ function titleSize(title) {
   gap: 16px;
   margin-top: 30px;
   padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  color: rgba(247, 250, 252, 0.52);
+  border-top: 1px solid #e6f0f8;
+  color: #5c7f99;
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 18px;
+  font-size: 17px;
   letter-spacing: 0.02em;
 }
 
@@ -363,18 +282,5 @@ function titleSize(title) {
   font-size: 12px;
   letter-spacing: 0.02em;
   text-align: center;
-}
-
-.p-ghost {
-  position: absolute;
-  z-index: 1;
-  right: -8px;
-  bottom: 10px;
-  color: rgba(255, 255, 255, 0.035);
-  font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 500px;
-  font-weight: 600;
-  line-height: 0.75;
-  pointer-events: none;
 }
 </style>

@@ -1,5 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect x="3" y="3" width="58" height="58" rx="13" fill="#1a202c" />
-  <rect x="3.75" y="3.75" width="56.5" height="56.5" rx="12.25" fill="none" stroke="#6366f1" stroke-opacity="0.55" stroke-width="1.5" />
-  <text x="32" y="44" text-anchor="middle" font-size="33" font-family="serif" fill="#c7d2fe">番</text>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#57c1ea" />
+      <stop offset="1" stop-color="#2a71b8" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#g)" />
+  <text x="32" y="42" text-anchor="middle" font-size="26" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-weight="700" fill="#ffffff">20</text>
 </svg>

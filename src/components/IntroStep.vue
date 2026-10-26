@@ -33,13 +33,6 @@ function submit() {
 
 <template>
   <section class="intro">
-    <div class="intro-scene" aria-hidden="true">
-      <span class="scene-orb"></span>
-      <span class="silhouette silhouette-a"></span>
-      <span class="silhouette silhouette-b"></span>
-      <span class="silhouette silhouette-c"></span>
-    </div>
-
     <div class="intro-main">
       <span class="vn-badge plate-indigo">序章</span>
 
@@ -118,8 +111,6 @@ function submit() {
         <p>“喜欢是私人的编年史。<br />把还记得的那一部，放回它出现的年份里。”</p>
         <span class="dialogue-hint">慢慢填，不着急。</span>
       </div>
-
-      <div class="ghost-20" aria-hidden="true">20</div>
     </aside>
   </section>
 </template>

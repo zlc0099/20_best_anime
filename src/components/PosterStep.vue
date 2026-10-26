@@ -177,7 +177,7 @@ async function makeBlob() {
     canvasWidth: POSTER_WIDTH,
     canvasHeight: height,
     pixelRatio: 1,
-    backgroundColor: '#f7fafc',
+    backgroundColor: '#eaf5fd',
     cacheBust: true,
   });
   if (!blob) throw new Error('图片生成失败');
