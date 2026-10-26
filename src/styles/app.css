@@ -1639,7 +1639,7 @@ img {
 
 .poster-layout {
   display: grid;
-  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
   align-items: center;
   gap: clamp(34px, 5.5vw, 72px);
   margin-top: 34px;
@@ -1664,8 +1664,8 @@ img {
   position: absolute;
   top: 0;
   left: 0;
-  width: 1080px;
-  height: 1920px;
+  width: 1440px;
+  height: auto;
   transform-origin: top left;
 }
 

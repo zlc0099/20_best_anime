@@ -46,7 +46,7 @@ function submit() {
       <h1>从三十七年里，<br />挑出你的<span class="accent">二十年</span>。</h1>
 
       <p class="lede">
-        1990 到 2026，每年只留一部。像读一本只属于你的视觉小说，把散落在时间里的喜欢，排成一张番单。
+        1990 到 2026，选 10–20 年，每年只留一部。像读一本只属于你的视觉小说，把散落在时间里的喜欢，排成一张番单。
       </p>
 
       <form class="nickname-form vn-card" @submit.prevent="submit">
@@ -94,7 +94,7 @@ function submit() {
           <li><span>时间跨度</span><b>1990 — 2026</b></li>
           <li><span>可选年份</span><b>37 年</b></li>
           <li><span>每年候选</span><b>热度前 20</b></li>
-          <li><span>需要选满</span><b>20 年</b></li>
+          <li><span>选择数量</span><b>10–20 年</b></li>
         </ul>
 
         <div class="decade-lines">

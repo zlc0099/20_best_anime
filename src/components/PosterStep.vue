@@ -11,9 +11,11 @@ const props = defineProps({
 });
 const emit = defineEmits(['back', 'reset']);
 
+const POSTER_WIDTH = 1440;
 const stageRef = ref(null);
 const posterRef = ref(null);
-const scale = ref(0.4);
+const scale = ref(0.3);
+const posterHeight = ref(1600);
 const busy = ref(false);
 const covers = ref({});
 const coverTotal = ref(0);
@@ -22,6 +24,7 @@ const coverFailed = ref(0);
 const coversLoading = ref(false);
 const COVER_CONCURRENCY = 5;
 let resizeObserver = null;
+let posterObserver = null;
 let coverLoadToken = 0;
 let coverControllers = [];
 
@@ -45,20 +48,35 @@ watch(
   { immediate: true },
 );
 
-onMounted(() => {
+onMounted(async () => {
   updateScale();
   resizeObserver = new ResizeObserver(updateScale);
   if (stageRef.value) resizeObserver.observe(stageRef.value);
+  await nextTick();
+  syncPosterHeight();
+  const node = posterRef.value?.getNode();
+  if (node) {
+    posterObserver = new ResizeObserver(syncPosterHeight);
+    posterObserver.observe(node);
+  }
 });
 
 onBeforeUnmount(() => {
   resizeObserver?.disconnect();
+  posterObserver?.disconnect();
   cancelCoverLoads();
 });
 
 function updateScale() {
   if (!stageRef.value) return;
-  scale.value = stageRef.value.clientWidth / 1080;
+  scale.value = stageRef.value.clientWidth / POSTER_WIDTH;
+}
+
+function syncPosterHeight() {
+  const node = posterRef.value?.getNode();
+  if (!node) return;
+  const height = node.offsetHeight;
+  if (height > 0) posterHeight.value = height;
 }
 
 function cancelCoverLoads() {
@@ -152,11 +170,12 @@ async function makeBlob() {
   const images = [...node.querySelectorAll('img')];
   await Promise.all(images.map((image) => image.decode?.().catch(() => {})));
   await nextTick();
+  const height = node.offsetHeight || posterHeight.value;
   const blob = await toBlob(node, {
-    width: 1080,
-    height: 1920,
-    canvasWidth: 1080,
-    canvasHeight: 1920,
+    width: POSTER_WIDTH,
+    height,
+    canvasWidth: POSTER_WIDTH,
+    canvasHeight: height,
     pixelRatio: 1,
     backgroundColor: '#f7fafc',
     cacheBust: true,
@@ -221,8 +240,19 @@ async function share() {
   <section class="step poster-step">
     <div class="poster-layout">
       <div class="poster-stage">
-        <div ref="stageRef" class="poster-frame">
-          <div class="poster-scaler" :style="{ transform: `scale(${scale})` }">
+        <div
+          ref="stageRef"
+          class="poster-frame"
+          :style="{ aspectRatio: `${POSTER_WIDTH} / ${posterHeight}` }"
+        >
+          <div
+            class="poster-scaler"
+            :style="{
+              width: `${POSTER_WIDTH}px`,
+              height: `${posterHeight}px`,
+              transform: `scale(${scale})`,
+            }"
+          >
             <PosterCanvas ref="posterRef" :nickname="nickname" :items="items" :covers="covers" />
           </div>
         </div>
@@ -233,7 +263,7 @@ async function share() {
 
         <h1>你的二十年，<br />已经排好了。</h1>
         <p class="lede">
-          5 列 × 4 行封面表格，1080 × 1920。保存下来，或者分享给同好——这是只属于你的动漫编年史。
+          5 列封面表格，宽 1440 px，高度随作品数量自动调整。保存下来，或者分享给同好——这是只属于你的动漫编年史。
         </p>
 
         <ul class="poster-meta">

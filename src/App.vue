@@ -6,7 +6,7 @@ import PickStep from './components/PickStep.vue';
 import PosterStep from './components/PosterStep.vue';
 import ToastBar from './components/ToastBar.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
-import { MAX_YEARS, useDraft } from './composables/useDraft.js';
+import { MAX_YEARS, MIN_YEARS, useDraft } from './composables/useDraft.js';
 import { useAnimeData } from './composables/useAnimeData.js';
 import { askConfirm } from './composables/useConfirm.js';
 import { hideToast, showToast } from './composables/useToast.js';
@@ -31,7 +31,7 @@ const { yearCounts } = useAnimeData();
 const initialStep = draft.nickname
   ? isComplete.value
     ? 'poster'
-    : draft.years.length === MAX_YEARS
+    : draft.years.length >= MIN_YEARS
       ? 'picks'
       : 'years'
   : 'intro';
@@ -53,7 +53,7 @@ watch(step, () => {
 function handleStart(nickname) {
   setNickname(nickname);
   if (isComplete.value) step.value = 'poster';
-  else if (draft.years.length === MAX_YEARS) step.value = 'picks';
+  else if (draft.years.length >= MIN_YEARS) step.value = 'picks';
   else step.value = 'years';
 }
 
@@ -105,7 +105,11 @@ function handleUnpick(year) {
 
 function handleGenerate() {
   if (!isComplete.value) {
-    showToast(`还差 ${MAX_YEARS - filledCount.value} 部作品`);
+    if (draft.years.length < MIN_YEARS) {
+      showToast(`至少选 ${MIN_YEARS} 年`);
+    } else {
+      showToast(`还差 ${draft.years.length - filledCount.value} 部作品`);
+    }
     return;
   }
   step.value = 'poster';
@@ -157,10 +161,10 @@ function goBack() {
             {{ draft.years.length }}<i>/20</i>
           </span>
           <span v-else-if="step === 'picks'" class="head-progress">
-            {{ filledCount }}<i>/20</i>
+            {{ filledCount }}<i>/{{ draft.years.length }}</i>
           </span>
           <span v-else-if="step === 'poster'" class="head-progress">
-            20<i>/20</i>
+            {{ draft.years.length }}<i>/{{ draft.years.length }}</i>
           </span>
           <span v-else class="head-progress head-years">
             1990—2026

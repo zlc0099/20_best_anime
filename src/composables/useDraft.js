@@ -4,6 +4,7 @@ const STORAGE_KEY = 'anime-years.draft.v1';
 
 export const START_YEAR = 1990;
 export const END_YEAR = 2026;
+export const MIN_YEARS = 10;
 export const MAX_YEARS = 20;
 export const MAX_NAME_LENGTH = 12;
 export const ALL_YEARS = Array.from(
@@ -85,7 +86,10 @@ export function useDraft() {
     () => state.years.filter((year) => Boolean(state.picks[year])).length,
   );
   const isComplete = computed(
-    () => state.years.length === MAX_YEARS && filledCount.value === MAX_YEARS,
+    () =>
+      state.years.length >= MIN_YEARS &&
+      state.years.length <= MAX_YEARS &&
+      filledCount.value === state.years.length,
   );
   const hasDraft = computed(() => Boolean(state.nickname) || state.years.length > 0);
   const orderedPicks = computed(() =>

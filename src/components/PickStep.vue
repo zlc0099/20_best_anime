@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue';
+import { MIN_YEARS } from '../composables/useDraft.js';
 import { useAnimeData } from '../composables/useAnimeData.js';
 import { showToast } from '../composables/useToast.js';
 import { displayTitle, formatLabel } from '../utils/anime.js';
@@ -59,9 +60,13 @@ const formatPlates = {
 const selectedCount = computed(
   () => props.years.filter((year) => Boolean(props.picks[year])).length,
 );
-const isComplete = computed(() => selectedCount.value === 20);
+const isComplete = computed(
+  () => props.years.length >= MIN_YEARS && selectedCount.value === props.years.length,
+);
 const activePick = computed(() => props.picks[activeYear.value] || null);
-const progress = computed(() => `${(selectedCount.value / 20) * 100}%`);
+const progress = computed(
+  () => `${(selectedCount.value / Math.max(props.years.length, 1)) * 100}%`,
+);
 
 const filteredList = computed(() => {
   const allowedFormats = formatSets[formatFilter.value];
@@ -184,7 +189,7 @@ function choose(anime) {
         },
       });
     } else {
-      showToast('20 部都选好了，可以生成海报了');
+      showToast(`${props.years.length} 部都选好了，可以生成海报了`);
     }
   } else {
     showToast(`已换成《${displayTitle(anime)}》`, {
@@ -240,7 +245,7 @@ function badgeClass(format) {
         <p class="lede">每年提供热度前 20 部，挑一部最喜欢的。选过之后会自动跳到下一个空年份。</p>
       </div>
       <div class="picks-progress" aria-live="polite">
-        <b>{{ selectedCount }}</b><span>/20 部</span>
+        <b>{{ selectedCount }}</b><span>/{{ years.length }} 部</span>
       </div>
     </header>
 
@@ -432,12 +437,12 @@ function badgeClass(format) {
 
       <div class="action-bar-inner">
         <div class="bar-progress">
-          <span class="bar-num">{{ selectedCount }}<i>/20</i></span>
+          <span class="bar-num">{{ selectedCount }}<i>/{{ years.length }}</i></span>
           <span class="bar-track" aria-hidden="true">
             <span class="bar-fill" :style="{ width: progress }"></span>
           </span>
           <span class="bar-hint">
-            {{ isComplete ? '全部选好了' : `还差 ${20 - selectedCount} 部` }}
+            {{ isComplete ? '全部选好了' : `还差 ${years.length - selectedCount} 部` }}
           </span>
         </div>
 

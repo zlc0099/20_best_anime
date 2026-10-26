@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { ALL_YEARS } from '../composables/useDraft.js';
+import { ALL_YEARS, MIN_YEARS } from '../composables/useDraft.js';
 
 const props = defineProps({
   selected: { type: Array, required: true },
@@ -38,7 +38,14 @@ const decades = [
 const selectedSet = computed(() => new Set(props.selected));
 const capped = computed(() => props.selected.length >= 20);
 const remaining = computed(() => 20 - props.selected.length);
+const needMore = computed(() => Math.max(0, MIN_YEARS - props.selected.length));
+const canContinue = computed(() => props.selected.length >= MIN_YEARS);
 const progress = computed(() => `${(props.selected.length / 20) * 100}%`);
+const hint = computed(() => {
+  if (needMore.value > 0) return `还差 ${needMore.value} 年（至少 ${MIN_YEARS} 年）`;
+  if (props.selected.length === 20) return '已选满 20 年';
+  return `可以继续，或再选 ${remaining.value} 年`;
+});
 
 function isSelected(year) {
   return selectedSet.value.has(year);
@@ -53,8 +60,8 @@ function countOf(year) {
   <section class="step years-step">
     <header class="step-head">
       <span class="vn-badge plate-indigo">第一步</span>
-      <h1>先选出 20 个年份</h1>
-      <p class="lede">37 年里只留 20 年。点一下选中，再点一下取消。</p>
+      <h1>先选出 10–20 个年份</h1>
+      <p class="lede">37 年里留 10–20 年。点一下选中，再点一下取消。</p>
 
       <div class="progress-row">
         <span class="progress-text" aria-live="polite">
@@ -63,9 +70,7 @@ function countOf(year) {
         <span class="progress-track" aria-hidden="true">
           <span class="progress-fill" :style="{ width: progress }"></span>
         </span>
-        <span class="progress-hint">
-          {{ remaining > 0 ? `还差 ${remaining} 年` : '已选满，可以继续' }}
-        </span>
+        <span class="progress-hint">{{ hint }}</span>
       </div>
     </header>
 
@@ -111,7 +116,7 @@ function countOf(year) {
             <span class="bar-fill" :style="{ width: progress }"></span>
           </span>
           <span class="bar-hint">
-            {{ remaining > 0 ? `还差 ${remaining} 年` : '已选满 20 年' }}
+            {{ needMore > 0 ? `还差 ${needMore} 年` : '可以继续' }}
           </span>
         </div>
 
@@ -127,7 +132,7 @@ function countOf(year) {
           <button
             class="btn btn-primary"
             type="button"
-            :disabled="selected.length !== 20"
+            :disabled="!canContinue"
             @click="emit('next')"
           >
             下一步：选作品

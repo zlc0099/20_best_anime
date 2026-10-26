@@ -34,10 +34,10 @@ function decadeTone(year) {
 
 function titleSize(title) {
   const length = Array.from(title || '').length;
-  if (length <= 12) return 16;
-  if (length <= 18) return 14.5;
-  if (length <= 24) return 13;
-  return 12;
+  if (length <= 12) return 19;
+  if (length <= 18) return 17;
+  if (length <= 24) return 15.5;
+  return 14;
 }
 </script>
 
@@ -65,7 +65,6 @@ function titleSize(title) {
 
         <div class="p-grid">
           <figure v-for="row in rows" :key="row.year" class="p-cell">
-            <span class="p-year" :class="row.tone">{{ row.year }}</span>
             <div class="p-cover">
               <img v-if="row.cover" :src="row.cover" alt="" />
               <span v-else class="p-cover-fallback" aria-hidden="true">{{ row.initial }}</span>
@@ -76,11 +75,12 @@ function titleSize(title) {
             >
               {{ row.title }}
             </figcaption>
+            <span class="p-year" :class="row.tone">{{ row.year }}</span>
           </figure>
         </div>
 
         <div class="p-foot">
-          <span>20 部 · 37 年</span>
+          <span>{{ items.length }} 部 · 37 年</span>
           <span class="p-source">封面与数据：AniList · bangumi-data</span>
           <span>二十年番单</span>
         </div>
@@ -94,8 +94,9 @@ function titleSize(title) {
 <style scoped>
 .poster {
   position: relative;
-  width: 1080px;
-  height: 1920px;
+  width: 1440px;
+  height: auto;
+  padding: 36px;
   overflow: hidden;
   background:
     linear-gradient(180deg, #eef2ff 0%, #f7fafc 52%, #fdf2f8 100%);
@@ -153,16 +154,12 @@ function titleSize(title) {
 }
 
 .p-panel {
-  position: absolute;
-  top: 44px;
-  right: 44px;
-  bottom: 44px;
-  left: 44px;
+  position: relative;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
   background:
-    radial-gradient(720px 380px at 100% 0%, rgba(99, 102, 241, 0.22), transparent 62%),
-    radial-gradient(520px 320px at 0% 100%, rgba(236, 72, 153, 0.12), transparent 65%),
+    radial-gradient(800px 420px at 100% 0%, rgba(99, 102, 241, 0.22), transparent 62%),
+    radial-gradient(600px 360px at 0% 100%, rgba(236, 72, 153, 0.12), transparent 65%),
     rgba(26, 32, 44, 0.94);
   box-shadow: 0 30px 80px -40px rgba(26, 32, 44, 0.65);
 }
@@ -198,15 +195,15 @@ function titleSize(title) {
 .p-plate {
   position: absolute;
   z-index: 3;
-  top: -14px;
-  left: 40px;
+  top: -16px;
+  left: 44px;
   display: inline-flex;
   align-items: center;
-  padding: 4px 14px;
+  padding: 4px 16px;
   border-radius: 4px;
   background: #4f46e5;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1.5;
@@ -218,8 +215,7 @@ function titleSize(title) {
   z-index: 2;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 50px 56px 42px;
+  padding: 48px 52px 40px;
 }
 
 .p-topline {
@@ -228,14 +224,14 @@ function titleSize(title) {
   gap: 24px;
   color: rgba(247, 250, 252, 0.58);
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 17px;
+  font-size: 20px;
   letter-spacing: 0.02em;
   line-height: 1.5;
 }
 
 .p-name {
-  max-width: 820px;
-  margin: 28px 0 0;
+  max-width: 1180px;
+  margin: 32px 0 0;
   color: #ffffff;
   font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
   font-weight: 600;
@@ -244,10 +240,10 @@ function titleSize(title) {
 }
 
 .p-sub {
-  margin: 13px 0 0;
+  margin: 16px 0 0;
   color: rgba(247, 250, 252, 0.72);
   font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 23px;
+  font-size: 28px;
   line-height: 1.6;
   letter-spacing: 0.06em;
 }
@@ -255,59 +251,53 @@ function titleSize(title) {
 .p-rule {
   flex: none;
   height: 2px;
-  margin-top: 22px;
+  margin-top: 26px;
   background: linear-gradient(
     to right,
     #818cf8 0,
-    #818cf8 128px,
-    rgba(255, 255, 255, 0.14) 128px,
+    #818cf8 150px,
+    rgba(255, 255, 255, 0.14) 150px,
     rgba(255, 255, 255, 0.14) 100%
   );
 }
 
 .p-grid {
   display: grid;
-  flex: 1;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  align-content: center;
-  column-gap: 14px;
-  row-gap: 28px;
-  min-height: 0;
-  padding-top: 8px;
+  align-content: start;
+  column-gap: 16px;
+  row-gap: 26px;
+  margin-top: 28px;
 }
 
 .p-cell {
+  display: flex;
   position: relative;
+  flex-direction: column;
   min-width: 0;
 }
 
 .p-year {
-  position: absolute;
-  z-index: 3;
-  top: -7px;
-  left: 7px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  box-shadow: 0 6px 14px -8px rgba(26, 32, 44, 0.8);
-  color: #ffffff;
+  margin-top: 4px;
+  color: #a5b4fc;
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 11px;
+  font-size: 17px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .p-year.tone-indigo {
-  background: #4f46e5;
+  color: #a5b4fc;
 }
 
 .p-year.tone-pink {
-  background: #be185d;
+  color: #f9a8d4;
 }
 
 .p-year.tone-emerald {
-  background: #047857;
+  color: #6ee7b7;
 }
 
 .p-cover {
@@ -315,7 +305,7 @@ function titleSize(title) {
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.06);
   box-shadow: 0 16px 26px -22px rgba(0, 0, 0, 0.8);
 }
@@ -335,7 +325,7 @@ function titleSize(title) {
   background: linear-gradient(160deg, rgba(99, 102, 241, 0.3), rgba(26, 32, 44, 0.4));
   color: rgba(199, 210, 254, 0.7);
   font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 40px;
+  font-size: 48px;
   font-weight: 500;
 }
 
@@ -343,7 +333,7 @@ function titleSize(title) {
   display: -webkit-box;
   overflow: hidden;
   min-height: 2.8em;
-  margin-top: 7px;
+  margin-top: 8px;
   color: #f7fafc;
   font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
   font-weight: 500;
@@ -360,16 +350,17 @@ function titleSize(title) {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  margin-top: 30px;
   padding-top: 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.16);
   color: rgba(247, 250, 252, 0.52);
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: 15px;
+  font-size: 18px;
   letter-spacing: 0.02em;
 }
 
 .p-source {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.02em;
   text-align: center;
 }
@@ -379,9 +370,9 @@ function titleSize(title) {
   z-index: 1;
   right: -8px;
   bottom: 10px;
-  color: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.035);
   font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "SimSun", serif;
-  font-size: 420px;
+  font-size: 500px;
   font-weight: 600;
   line-height: 0.75;
   pointer-events: none;

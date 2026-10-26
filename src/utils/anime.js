@@ -17,10 +17,10 @@ export function formatLabel(format) {
 
 export function nameFontSize(nickname) {
   const length = Array.from(nickname || '').length;
-  if (length <= 4) return 104;
-  if (length <= 6) return 92;
-  if (length <= 9) return 78;
-  return 64;
+  if (length <= 4) return 136;
+  if (length <= 6) return 120;
+  if (length <= 9) return 104;
+  return 86;
 }
 
 export function posterTitleFontSize(title) {
