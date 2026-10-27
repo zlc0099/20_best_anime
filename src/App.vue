@@ -27,7 +27,6 @@ const {
   reset,
 } = useDraft();
 const { yearCounts } = useAnimeData();
-const baseUrl = import.meta.env.BASE_URL;
 
 const initialStep = draft.nickname
   ? isComplete.value
@@ -136,20 +135,7 @@ function goBack() {
 </script>
 
 <template>
-  <div class="scene-bg" aria-hidden="true">
-    <div
-      class="bg-layer bg-1"
-      :style="{ backgroundImage: `url(${baseUrl}bg/scene-seaside.jpg)` }"
-    ></div>
-    <div
-      class="bg-layer bg-2"
-      :style="{ backgroundImage: `url(${baseUrl}bg/scene-rooftop.jpg)` }"
-    ></div>
-    <div
-      class="bg-layer bg-3"
-      :style="{ backgroundImage: `url(${baseUrl}bg/scene-riverside.jpg)` }"
-    ></div>
-  </div>
+  <div class="scene-bg" aria-hidden="true"></div>
 
   <a class="skip-link" href="#main">跳到主要内容</a>
 
