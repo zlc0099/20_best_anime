@@ -6,7 +6,7 @@ import PickStep from './components/PickStep.vue';
 import PosterStep from './components/PosterStep.vue';
 import ToastBar from './components/ToastBar.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
-import { MAX_YEARS, MIN_YEARS, useDraft } from './composables/useDraft.js';
+import { ALL_YEARS, MAX_YEARS, MIN_YEARS, useDraft } from './composables/useDraft.js';
 import { useAnimeData } from './composables/useAnimeData.js';
 import { askConfirm } from './composables/useConfirm.js';
 import { hideToast, showToast } from './composables/useToast.js';
@@ -22,6 +22,7 @@ const {
   addYear,
   removeYear,
   clearYears,
+  setYears,
   setPick,
   clearPick,
   reset,
@@ -55,6 +56,33 @@ function handleStart(nickname) {
   if (isComplete.value) step.value = 'poster';
   else if (draft.years.length >= MIN_YEARS) step.value = 'picks';
   else step.value = 'years';
+}
+
+function pickRandomYears(count) {
+  const pool = [...ALL_YEARS];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count).sort((a, b) => a - b);
+}
+
+async function handleRandomStart(nickname, count) {
+  if (![10, 15, 20].includes(count)) return;
+  const hasSelections =
+    draft.years.length > 0 || Object.keys(draft.picks).length > 0;
+  if (hasSelections) {
+    const confirmed = await askConfirm({
+      title: '随机替换当前番单？',
+      message: '会重新抽取年份，并清空已选的年份与作品；昵称会更新。',
+      confirmText: '随机开始',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+  }
+  setNickname(nickname);
+  setYears(pickRandomYears(count));
+  step.value = 'picks';
 }
 
 async function handleToggleYear(year) {
@@ -188,6 +216,7 @@ function goBack() {
           :initial-nickname="draft.nickname"
           :has-draft="hasDraft"
           @start="handleStart"
+          @random-start="handleRandomStart"
           @reset="handleReset"
         />
 

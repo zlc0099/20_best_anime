@@ -6,11 +6,13 @@ const props = defineProps({
   initialNickname: { type: String, default: '' },
   hasDraft: { type: Boolean, default: false },
 });
-const emit = defineEmits(['start', 'reset']);
+const emit = defineEmits(['start', 'reset', 'random-start']);
 
 const nickname = ref(props.initialNickname || '');
 const count = computed(() => Array.from(nickname.value).length);
 const trimmed = computed(() => nickname.value.trim());
+const randomCounts = [10, 15, 20];
+const randomCount = ref(15);
 
 watch(
   () => props.initialNickname,
@@ -28,6 +30,11 @@ function handleInput(event) {
 function submit() {
   if (!trimmed.value) return;
   emit('start', trimmed.value);
+}
+
+function randomStart() {
+  if (!trimmed.value) return;
+  emit('random-start', trimmed.value, randomCount.value);
 }
 </script>
 
@@ -62,10 +69,6 @@ function submit() {
             aria-describedby="nickname-hint"
             @input="handleInput"
           />
-          <button class="btn btn-primary" type="submit" :disabled="!trimmed">
-            {{ hasDraft ? '继续填写' : '开始填写' }}
-            <span class="btn-arrow" aria-hidden="true">›</span>
-          </button>
         </div>
 
         <div class="hint-row">
@@ -75,6 +78,59 @@ function submit() {
           <button v-if="hasDraft" class="text-link" type="button" @click="emit('reset')">
             清空上次记录
           </button>
+        </div>
+
+        <div class="mode-picker">
+          <div class="mode-heading">
+            <span>选择填写方式</span>
+            <small>昵称填好后即可开始</small>
+          </div>
+
+          <div class="mode-grid">
+            <div class="mode-option">
+              <div class="mode-copy">
+                <b>自选年份</b>
+                <span>从 37 年里挑 10–20 年，逐格选择</span>
+              </div>
+              <button
+                class="btn btn-primary mode-btn"
+                type="submit"
+                :disabled="!trimmed"
+              >
+                自选年份
+                <span class="btn-arrow" aria-hidden="true">›</span>
+              </button>
+            </div>
+
+            <div class="mode-option">
+              <div class="mode-copy">
+                <b>随机年份</b>
+                <span>随机抽 10 / 15 / 20 年，直接进入选动画</span>
+              </div>
+              <div class="mode-random-controls">
+                <div class="seg mode-seg" role="group" aria-label="随机年份数量">
+                  <button
+                    v-for="n in randomCounts"
+                    :key="n"
+                    type="button"
+                    :class="{ active: randomCount === n }"
+                    @click="randomCount = n"
+                  >
+                    {{ n }} 年
+                  </button>
+                </div>
+                <button
+                  class="btn btn-primary mode-btn"
+                  type="button"
+                  :disabled="!trimmed"
+                  @click="randomStart"
+                >
+                  随机开始
+                  <span class="btn-arrow" aria-hidden="true">›</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
     </div>

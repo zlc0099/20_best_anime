@@ -819,6 +819,91 @@ img {
   white-space: nowrap;
 }
 
+.mode-picker {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.mode-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--ink-strong);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.mode-heading small {
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mode-option {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.mode-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mode-copy b {
+  color: var(--ink-strong);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mode-copy span {
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.mode-btn {
+  width: 100%;
+  min-height: 42px;
+  margin-top: auto;
+  font-size: 12px;
+}
+
+.mode-random-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.seg.mode-seg {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+}
+
+.mode-seg button {
+  text-align: center;
+}
+
 .intro-aside {
   display: flex;
   flex-direction: column;
@@ -2505,6 +2590,16 @@ img {
   .site-head-inner,
   .site-foot {
     background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+@media (max-width: 620px) {
+  .mode-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mode-heading small {
+    display: none;
   }
 }
 

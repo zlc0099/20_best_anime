@@ -123,6 +123,17 @@ export function useDraft() {
     state.picks = {};
   }
 
+  function setYears(years) {
+    state.years = [...new Set(years)]
+      .filter(
+        (year) =>
+          Number.isInteger(year) && year >= START_YEAR && year <= END_YEAR,
+      )
+      .sort((a, b) => a - b)
+      .slice(0, MAX_YEARS);
+    state.picks = {};
+  }
+
   function setPick(year, anime) {
     if (!state.years.includes(year)) return;
     const pick = toPick(anime);
@@ -155,6 +166,7 @@ export function useDraft() {
     addYear,
     removeYear,
     clearYears,
+    setYears,
     setPick,
     clearPick,
     reset,
