@@ -80,7 +80,7 @@ npm run data -- --refresh   # 忽略本地缓存重新请求
 首页与海报页下方的“大家都在看”来自 Supabase：
 
 1. 在 Supabase 的 SQL Editor 里执行一次 `supabase/schema.sql`（两张表 + 两个 RPC + RLS，匿名只能写入与读取聚合结果）；
-2. 配置环境变量：`VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY`（只需 publishable / anon key，**绝不能**放 `service_role`）；
+2. 配置环境变量：`VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY`（只需 publishable / anon key，**绝不能**放 `service_role`）。本地写 `.env.local`（已 gitignore）；线上在仓库 **Settings → Secrets and variables → Actions** 里新增同名 Variables 或 Secrets，`.github/workflows/deploy.yml` 会自动注入构建，两处都支持、变量优先。改完在 **Actions → Deploy to GitHub Pages → Run workflow** 重跑一次生效；
 3. 生成海报时匿名提交一次 `{年份, 作品 ID}`，不含昵称，可在首页取消勾选；
 4. 占比 = 该作品被选次数 ÷ 该年代总选择次数；样本少于 30 份会标注“样本还少”。
 
