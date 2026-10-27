@@ -4,6 +4,7 @@ import { toBlob } from 'html-to-image';
 import BattlePosterCanvas from './BattlePosterCanvas.vue';
 import { useCovers } from '../composables/useCovers.js';
 import { showToast } from '../composables/useToast.js';
+import { battleModeLabel } from '../composables/useBattle.js';
 import { displayTitle, formatLabel, safeFilename } from '../utils/anime.js';
 
 const props = defineProps({
@@ -42,11 +43,7 @@ const {
   failed: coverFailed,
   load: loadCovers,
 } = useCovers(() => entries.value);
-const modeLabel = computed(() =>
-  props.mode === 'range' && props.range
-    ? `${props.range[0]}—${props.range[1]} 年`
-    : '1990—2026 全年代',
-);
+const modeLabel = computed(() => battleModeLabel(props.mode, props.range));
 const filename = computed(() => `${safeFilename(props.nickname)}-动漫大乱斗.png`);
 const canShare = computed(
   () => typeof navigator !== 'undefined' && typeof navigator.share === 'function',
@@ -196,7 +193,7 @@ async function share() {
 
         <ul class="poster-meta">
           <li><span>署名</span><b>{{ nickname }}</b></li>
-          <li><span>池子</span><b>{{ modeLabel }} · 32 部</b></li>
+          <li><span>池子</span><b>{{ modeLabel }}</b></li>
           <li><span>冠军</span><b>{{ champion ? displayTitle(champion) : '—' }}</b></li>
           <li>
             <span>亚军</span>

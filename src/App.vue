@@ -5,6 +5,7 @@ import YearStep from './components/YearStep.vue';
 import PickStep from './components/PickStep.vue';
 import PosterStep from './components/PosterStep.vue';
 import BattleStep from './components/BattleStep.vue';
+import BattlePickStep from './components/BattlePickStep.vue';
 import BattlePosterStep from './components/BattlePosterStep.vue';
 import ToastBar from './components/ToastBar.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
@@ -77,8 +78,13 @@ const yearbookStep = draft.nickname
       ? 'picks'
       : 'years'
   : 'intro';
+const savedFlow = readFlow();
 const initialStep =
-  readFlow() === 'battle' && battleActive.value ? 'battle' : yearbookStep;
+  savedFlow === 'battle' && battleActive.value
+    ? 'battle'
+    : savedFlow === 'battle-pick'
+      ? 'battle-pick'
+      : yearbookStep;
 const step = ref(initialStep);
 const battleLoading = ref(false);
 
@@ -185,8 +191,8 @@ async function handleBattleStart(payload) {
   if (battleLoading.value) return;
   battleLoading.value = true;
   try {
-    setNickname(payload.nickname);
-    await startBattle(payload.mode, { range: payload.range });
+    if (payload.nickname) setNickname(payload.nickname);
+    await startBattle(payload.mode, { range: payload.range, picks: payload.picks });
     writeFlow('battle');
     step.value = 'battle';
   } catch (error) {
@@ -195,6 +201,16 @@ async function handleBattleStart(payload) {
   } finally {
     battleLoading.value = false;
   }
+}
+
+function handleBattlePick(nickname) {
+  setNickname(nickname);
+  writeFlow('battle-pick');
+  step.value = 'battle-pick';
+}
+
+function handlePickedStart(picks) {
+  handleBattleStart({ mode: 'picked', picks });
 }
 
 async function handleBattleReset() {
@@ -289,6 +305,7 @@ function goBack() {
   else if (step.value === 'years') step.value = 'intro';
   else if (step.value === 'battle-poster') step.value = 'battle';
   else if (step.value === 'battle') step.value = 'intro';
+  else if (step.value === 'battle-pick') step.value = 'intro';
 }
 </script>
 
@@ -306,7 +323,7 @@ function goBack() {
           <span>20 Best Anime</span>
         </div>
 
-        <nav v-if="step !== 'intro'" class="trail" aria-label="填写进度">
+        <nav v-if="step !== 'intro' && step !== 'battle-pick'" class="trail" aria-label="填写进度">
           <span
             v-for="(item, index) in trail"
             :key="item.key"
@@ -369,6 +386,7 @@ function goBack() {
           @reset="handleReset"
           @contribute-change="handleContributeChange"
           @battle-start="handleBattleStart"
+          @battle-pick="handleBattlePick"
         />
 
         <YearStep
@@ -401,6 +419,13 @@ function goBack() {
           :focus-years="draft.years"
           @back="step = 'picks'"
           @reset="handleReset"
+        />
+
+        <BattlePickStep
+          v-else-if="step === 'battle-pick'"
+          key="battle-pick"
+          @start="handlePickedStart"
+          @back="step = 'intro'"
         />
 
         <BattleStep

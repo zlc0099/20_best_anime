@@ -3,6 +3,12 @@ export function displayTitle(anime) {
   return anime.cn || anime.jp || anime.romaji || '未知作品';
 }
 
+export function popularityLabel(pop) {
+  const value = Number(pop) || 0;
+  if (!value) return '';
+  return value >= 10000 ? `${(value / 10000).toFixed(1)} 万人气` : `${value} 人气`;
+}
+
 export function formatLabel(format) {
   const labels = {
     TV: 'TV',

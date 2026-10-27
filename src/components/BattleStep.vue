@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
-import { displayTitle, formatLabel } from '../utils/anime.js';
-import { splitHalves, TOTAL_MATCHES } from '../composables/useBattle.js';
+import { displayTitle, formatLabel, popularityLabel } from '../utils/anime.js';
+import { battleModeLabel, splitHalves, TOTAL_MATCHES } from '../composables/useBattle.js';
 
 const props = defineProps({
   rounds: { type: Array, default: () => [] },
@@ -14,19 +14,10 @@ const props = defineProps({
 });
 const emit = defineEmits(['pick', 'undo', 'reset', 'poster']);
 
-const modeLabel = computed(() =>
-  props.mode === 'range' && props.range
-    ? `${props.range[0]}—${props.range[1]} 年 · 随机 32 部`
-    : '1990—2026 全年代 · 随机 32 部',
-);
+const modeLabel = computed(() => battleModeLabel(props.mode, props.range));
 const matchNo = computed(() => Math.min(props.decidedCount + 1, TOTAL_MATCHES));
 const progress = computed(() => `${Math.round((props.decidedCount / TOTAL_MATCHES) * 100)}%`);
 const sides = ['top', 'bottom'];
-
-function popLabel(pop) {
-  if (!pop) return '';
-  return pop >= 10000 ? `${(pop / 10000).toFixed(1)} 万人气` : `${pop} 人气`;
-}
 
 const columns = computed(() => {
   const halves = splitHalves(props.rounds);
@@ -117,8 +108,8 @@ function isCurrent(group) {
         <span class="duel-meta">
           {{ currentMatch[side].year }} 年 · {{ formatLabel(currentMatch[side].format) }}
         </span>
-        <span v-if="popLabel(currentMatch[side].pop)" class="duel-pop">
-          {{ popLabel(currentMatch[side].pop) }}
+        <span v-if="popularityLabel(currentMatch[side].pop)" class="duel-pop">
+          {{ popularityLabel(currentMatch[side].pop) }}
         </span>
         <span class="duel-cta">选它晋级 <span class="btn-arrow" aria-hidden="true">›</span></span>
       </button>

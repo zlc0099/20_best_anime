@@ -2174,6 +2174,182 @@ img {
   font-weight: 400;
 }
 
+/* ---------- battle pick ---------- */
+
+.battle-pick-head h1 {
+  margin: 14px 0 10px;
+  color: var(--text);
+  font-family: var(--display);
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.battle-pick-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+  margin-top: 26px;
+}
+
+.pick-list {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--divider);
+}
+
+.pick-row {
+  border-bottom: 1px solid var(--divider);
+}
+
+.pick-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 6px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.pick-main:hover {
+  border-left-color: var(--border);
+  background: var(--panel-2);
+}
+
+.pick-row.on .pick-main {
+  border-left-color: var(--accent);
+  background: var(--panel-2);
+}
+
+.pick-main img,
+.pick-ph {
+  width: 34px;
+  height: 48px;
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 1px;
+  background: var(--panel-2);
+  object-fit: cover;
+}
+
+.pick-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.pick-text b {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pick-text i {
+  margin-top: 2px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.pick-mark {
+  margin-left: auto;
+  color: var(--accent-text);
+  font-family: var(--mono);
+  font-size: 14px;
+}
+
+.battle-pick-side {
+  position: sticky;
+  top: calc(var(--header-h) + 12px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+.pick-count {
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.pick-count b {
+  color: var(--text);
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.pick-count.full b {
+  color: var(--accent-text);
+}
+
+.pick-tray {
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  border-top: 1px solid var(--divider);
+}
+
+.pick-tray li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 12px;
+}
+
+.tray-rank {
+  flex: none;
+  width: 20px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.tray-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tray-remove {
+  flex: none;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tray-remove:hover {
+  color: var(--accent-text);
+}
+
+.pick-hint {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
 /* ---------- crowd stats ---------- */
 
 .crowd {
@@ -2552,6 +2728,13 @@ img {
 }
 
 @media (max-width: 920px) {
+  .battle-pick-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .battle-pick-side {
+    position: static;
+  }
   .trail {
     display: none;
   }

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { displayTitle, formatLabel } from '../utils/anime.js';
-import { splitHalves } from '../composables/useBattle.js';
+import { battleModeLabel, splitHalves } from '../composables/useBattle.js';
 
 const props = defineProps({
   nickname: { type: String, default: '' },
@@ -15,11 +15,7 @@ const props = defineProps({
 
 const rootRef = ref(null);
 
-const modeLabel = computed(() =>
-  props.mode === 'range' && props.range
-    ? `${props.range[0]}—${props.range[1]} 年随机 32 部`
-    : '1990—2026 全年代随机 32 部',
-);
+const modeLabel = computed(() => battleModeLabel(props.mode, props.range));
 
 const dateLabel = computed(() => {
   const now = new Date();

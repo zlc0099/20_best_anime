@@ -52,6 +52,12 @@ export function rangePoolSize(range) {
   return total;
 }
 
+export function battleModeLabel(mode, range) {
+  if (mode === 'range' && range) return `${range[0]}—${range[1]} 年 · 随机 32 部`;
+  if (mode === 'picked') return `自选 32 部 · 乱序对阵`;
+  return '1990—2026 全年代 · 随机 32 部';
+}
+
 function shuffle(list) {
   const copy = [...list];
   for (let i = copy.length - 1; i > 0; i -= 1) {
@@ -108,7 +114,7 @@ function loadSaved() {
     const field = sanitizeField(data.field);
     if (!field) return null;
     return {
-      mode: data.mode === 'range' ? 'range' : 'random',
+      mode: ['range', 'picked'].includes(data.mode) ? data.mode : 'random',
       range: Array.isArray(data.range) && data.range.length === 2 ? data.range : null,
       field,
       picks: sanitizePicks(data.picks),
@@ -210,21 +216,29 @@ export function useBattle() {
   );
 
   async function start(mode, options = {}) {
-    const pool = await loadBattlePool();
-    let candidates = pool;
+    let candidates;
     let range = null;
 
-    if (mode === 'range') {
-      const [from, to] = options.range || [];
-      if (!Number.isInteger(from) || !Number.isInteger(to) || from > to) {
-        throw new Error('年份范围不合法');
-      }
-      range = [from, to];
-      candidates = pool.filter((item) => item.year >= from && item.year <= to);
-    }
+    if (mode === 'picked') {
+      const picked = sanitizeField(options.picks);
+      if (!picked) throw new Error(`请选满 ${BRACKET_SIZE} 部互不重复的作品`);
+      candidates = picked;
+    } else {
+      const pool = await loadBattlePool();
+      candidates = pool;
 
-    if (candidates.length < BRACKET_SIZE) {
-      throw new Error(`这个范围只有 ${candidates.length} 部候选，至少需要 ${BRACKET_SIZE} 部`);
+      if (mode === 'range') {
+        const [from, to] = options.range || [];
+        if (!Number.isInteger(from) || !Number.isInteger(to) || from > to) {
+          throw new Error('年份范围不合法');
+        }
+        range = [from, to];
+        candidates = pool.filter((item) => item.year >= from && item.year <= to);
+      }
+
+      if (candidates.length < BRACKET_SIZE) {
+        throw new Error(`这个范围只有 ${candidates.length} 部候选，至少需要 ${BRACKET_SIZE} 部`);
+      }
     }
 
     state.mode = mode;

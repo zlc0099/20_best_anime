@@ -17,6 +17,7 @@ const emit = defineEmits([
   'random-start',
   'contribute-change',
   'battle-start',
+  'battle-pick',
 ]);
 
 const nickname = ref(props.initialNickname || '');
@@ -169,7 +170,7 @@ function startBattle(mode) {
               <div class="mode-copy">
                 <b>动漫大乱斗</b>
                 <span>
-                  {{ BRACKET_SIZE }} 部随机对阵，32 强 → 16 强 → 8 强 → 半决赛 → 决赛，
+                  32 部对阵（年份范围 / 全随机 / 自选 32 部），32 强 → 16 强 → 8 强 → 半决赛 → 决赛，
                   每场二选一，最后出一张冠军对阵图。
                 </span>
               </div>
@@ -212,6 +213,14 @@ function startBattle(mode) {
                     @click="startBattle('random')"
                   >
                     全随机 {{ BRACKET_SIZE }} 部
+                  </button>
+                  <button
+                    class="btn btn-glass"
+                    type="button"
+                    :disabled="!trimmed || battleLoading"
+                    @click="emit('battle-pick', trimmed)"
+                  >
+                    自选 {{ BRACKET_SIZE }} 部
                   </button>
                 </div>
               </div>
