@@ -4,13 +4,22 @@ import IntroStep from './components/IntroStep.vue';
 import YearStep from './components/YearStep.vue';
 import PickStep from './components/PickStep.vue';
 import PosterStep from './components/PosterStep.vue';
+import BattleStep from './components/BattleStep.vue';
+import BattlePosterStep from './components/BattlePosterStep.vue';
 import ToastBar from './components/ToastBar.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
 import { ALL_YEARS, MAX_YEARS, MIN_YEARS, useDraft } from './composables/useDraft.js';
 import { useAnimeData } from './composables/useAnimeData.js';
+import { useBattle, TOTAL_MATCHES } from './composables/useBattle.js';
 import { askConfirm } from './composables/useConfirm.js';
 import { hideToast, showToast } from './composables/useToast.js';
 import { displayTitle } from './utils/anime.js';
+import {
+  loadContribute,
+  saveContribute,
+  statsEnabled,
+  submitPicks,
+} from './utils/stats.js';
 
 const {
   state: draft,
@@ -29,29 +38,115 @@ const {
 } = useDraft();
 const { yearCounts } = useAnimeData();
 
-const initialStep = draft.nickname
+const {
+  state: battleState,
+  active: battleActive,
+  currentMatch: battleCurrentMatch,
+  rounds: battleRounds,
+  champion: battleChampion,
+  runnerUp: battleRunnerUp,
+  decidedCount: battleDecided,
+  start: startBattle,
+  pick: pickBattle,
+  undo: undoBattle,
+  reset: resetBattle,
+} = useBattle();
+
+const FLOW_KEY = 'anime-years.flow.v1';
+
+function writeFlow(value) {
+  try {
+    localStorage.setItem(FLOW_KEY, value);
+  } catch {
+    // ignore unavailable storage
+  }
+}
+
+function readFlow() {
+  try {
+    return localStorage.getItem(FLOW_KEY);
+  } catch {
+    return null;
+  }
+}
+
+const yearbookStep = draft.nickname
   ? isComplete.value
     ? 'poster'
     : draft.years.length >= MIN_YEARS
       ? 'picks'
       : 'years'
   : 'intro';
+const initialStep =
+  readFlow() === 'battle' && battleActive.value ? 'battle' : yearbookStep;
 const step = ref(initialStep);
+const battleLoading = ref(false);
 
-const trail = [
+const theme = ref(
+  document.documentElement.dataset.theme === 'paper' ? 'paper' : 'dark',
+);
+
+function applyTheme(next) {
+  theme.value = next;
+  document.documentElement.dataset.theme = next;
+  try {
+    localStorage.setItem('anime-theme', next);
+  } catch {
+    // ignore unavailable storage
+  }
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', next === 'paper' ? '#f2efe9' : '#0b0d0f');
+}
+
+function toggleTheme() {
+  applyTheme(theme.value === 'dark' ? 'paper' : 'dark');
+}
+
+const YEARBOOK_TRAIL = [
   { key: 'years', label: '年份' },
   { key: 'picks', label: '作品' },
   { key: 'poster', label: '海报' },
 ];
-const trailIndex = computed(() => trail.findIndex((item) => item.key === step.value));
+const BATTLE_TRAIL = [
+  { key: 'battle', label: '对阵' },
+  { key: 'battle-poster', label: '海报' },
+];
+
+const isBattle = computed(() => step.value === 'battle' || step.value === 'battle-poster');
+const trail = computed(() => (isBattle.value ? BATTLE_TRAIL : YEARBOOK_TRAIL));
+const trailIndex = computed(() => trail.value.findIndex((item) => item.key === step.value));
 const hasActionBar = computed(() => step.value === 'years' || step.value === 'picks');
 
-watch(step, () => {
+const contribute = ref(loadContribute());
+const submitState = ref('idle');
+
+watch(step, async (next) => {
   hideToast();
   window.scrollTo({ top: 0, behavior: 'auto' });
+
+  if (next !== 'poster' || !statsEnabled) return;
+  if (!contribute.value) {
+    submitState.value = 'off';
+    return;
+  }
+
+  submitState.value = 'pending';
+  try {
+    const result = await submitPicks(orderedPicks.value);
+    submitState.value = result.ok ? (result.duplicate ? 'duplicate' : 'done') : 'error';
+  } catch {
+    submitState.value = 'error';
+  }
 });
 
+function handleContributeChange(value) {
+  contribute.value = value;
+  saveContribute(value);
+}
+
 function handleStart(nickname) {
+  writeFlow('yearbook');
   setNickname(nickname);
   if (isComplete.value) step.value = 'poster';
   else if (draft.years.length >= MIN_YEARS) step.value = 'picks';
@@ -81,8 +176,41 @@ async function handleRandomStart(nickname, count) {
     if (!confirmed) return;
   }
   setNickname(nickname);
+  writeFlow('yearbook');
   setYears(pickRandomYears(count));
   step.value = 'picks';
+}
+
+async function handleBattleStart(payload) {
+  if (battleLoading.value) return;
+  battleLoading.value = true;
+  try {
+    setNickname(payload.nickname);
+    await startBattle(payload.mode, { range: payload.range });
+    writeFlow('battle');
+    step.value = 'battle';
+  } catch (error) {
+    console.error(error);
+    showToast(error?.message || '抽签失败，请稍后再试');
+  } finally {
+    battleLoading.value = false;
+  }
+}
+
+async function handleBattleReset() {
+  const confirmed = await askConfirm({
+    title: '重新抽签？',
+    message:
+      battleDecided.value > 0
+        ? `当前 32 强对阵和已选的 ${battleDecided.value} 场都会被清空，无法撤销。`
+        : '当前对阵会被清空，重新抽取 32 部作品。',
+    confirmText: '重新抽签',
+    tone: 'danger',
+  });
+  if (!confirmed) return;
+  resetBattle();
+  writeFlow('yearbook');
+  step.value = 'intro';
 }
 
 async function handleToggleYear(year) {
@@ -159,6 +287,8 @@ function goBack() {
   if (step.value === 'picks') step.value = 'years';
   else if (step.value === 'poster') step.value = 'picks';
   else if (step.value === 'years') step.value = 'intro';
+  else if (step.value === 'battle-poster') step.value = 'battle';
+  else if (step.value === 'battle') step.value = 'intro';
 }
 </script>
 
@@ -197,12 +327,28 @@ function goBack() {
           <span v-else-if="step === 'poster'" class="head-progress">
             {{ draft.years.length }}<i>/{{ draft.years.length }}</i>
           </span>
+          <span v-else-if="step === 'battle'" class="head-progress">
+            {{ battleDecided }}<i>/{{ TOTAL_MATCHES }}</i>
+          </span>
+          <span v-else-if="step === 'battle-poster'" class="head-progress">
+            {{ TOTAL_MATCHES }}<i>/{{ TOTAL_MATCHES }}</i>
+          </span>
           <span v-else class="head-progress head-years">
             1990—2026
           </span>
 
           <button v-if="step !== 'intro'" class="head-back" type="button" @click="goBack">
             ← <span>返回</span>
+          </button>
+
+          <button
+            class="theme-switch"
+            type="button"
+            :aria-label="theme === 'dark' ? '切换到纸质主题' : '切换到深色主题'"
+            @click="toggleTheme"
+          >
+            <span class="theme-swatch" aria-hidden="true"></span>
+            <span>{{ theme === 'dark' ? '深色' : '纸质' }}</span>
           </button>
         </div>
       </div>
@@ -215,9 +361,14 @@ function goBack() {
           key="intro"
           :initial-nickname="draft.nickname"
           :has-draft="hasDraft"
+          :stats-enabled="statsEnabled"
+          :contribute="contribute"
+          :battle-loading="battleLoading"
           @start="handleStart"
           @random-start="handleRandomStart"
           @reset="handleReset"
+          @contribute-change="handleContributeChange"
+          @battle-start="handleBattleStart"
         />
 
         <YearStep
@@ -241,12 +392,43 @@ function goBack() {
         />
 
         <PosterStep
-          v-else
+          v-else-if="step === 'poster'"
           key="poster"
           :nickname="draft.nickname"
           :items="orderedPicks"
+          :stats-enabled="statsEnabled"
+          :submit-state="submitState"
+          :focus-years="draft.years"
           @back="step = 'picks'"
           @reset="handleReset"
+        />
+
+        <BattleStep
+          v-else-if="step === 'battle'"
+          key="battle"
+          :rounds="battleRounds"
+          :current-match="battleCurrentMatch"
+          :champion="battleChampion"
+          :runner-up="battleRunnerUp"
+          :decided-count="battleDecided"
+          :mode="battleState.mode"
+          :range="battleState.range"
+          @pick="pickBattle"
+          @undo="undoBattle"
+          @reset="handleBattleReset"
+          @poster="step = 'battle-poster'"
+        />
+
+        <BattlePosterStep
+          v-else
+          key="battle-poster"
+          :nickname="draft.nickname"
+          :mode="battleState.mode"
+          :range="battleState.range"
+          :rounds="battleRounds"
+          :champion="battleChampion"
+          :runner-up="battleRunnerUp"
+          @back="step = 'battle'"
         />
       </Transition>
     </main>

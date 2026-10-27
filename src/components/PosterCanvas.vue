@@ -283,4 +283,121 @@ function titleSize(title) {
   letter-spacing: 0.02em;
   text-align: center;
 }
+/* Archive theme overrides */
+.poster {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 0.55px, transparent 0.55px);
+  background-size: 4px 4px;
+  color: var(--text);
+  font-family: var(--body);
+}
+
+.p-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: none;
+}
+
+.p-plate {
+  top: -10px;
+  left: 24px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: none;
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.p-topline {
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.p-name {
+  color: var(--text);
+  font-family: var(--display);
+  font-weight: 600;
+}
+
+.p-sub {
+  color: var(--text-2);
+  font-family: var(--body);
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+.p-rule {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0,
+    var(--accent) 80px,
+    var(--border) 80px,
+    var(--border) 100%
+  );
+}
+
+.p-year {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--accent-text);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.p-year.tone-indigo,
+.p-year.tone-pink,
+.p-year.tone-emerald {
+  background: transparent;
+  color: var(--accent-text);
+}
+
+.p-cover {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  box-shadow: none;
+}
+
+.p-cover-fallback {
+  background: var(--panel-2);
+  color: var(--text-3);
+  font-family: var(--display);
+  font-size: 32px;
+}
+
+.p-title {
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 400;
+}
+
+.p-foot {
+  border-top: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
+.p-source {
+  color: var(--text-3);
+  font-size: 10px;
+}
 </style>

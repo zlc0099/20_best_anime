@@ -3,7 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#e8f4fd" />
+    <meta name="theme-color" content="#0b0d0f" />
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem('anime-theme');
+          const theme = saved === 'paper' ? 'paper' : 'dark';
+          document.documentElement.dataset.theme = theme;
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'paper' ? '#f2efe9' : '#0b0d0f');
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <style>
+      html {
+        background: #0b0d0f;
+      }
+      html[data-theme='paper'] {
+        background: #f2efe9;
+      }
+      body {
+        margin: 0;
+      }
+    </style>
     <meta
       name="description"
       content="从 1990–2026 的 37 年里挑出 10–20 年，每年从热度前 20 部里选一部，生成一张只属于你的私人番单。"

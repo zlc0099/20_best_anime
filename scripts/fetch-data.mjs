@@ -10,18 +10,23 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isExcludedTitle } from '../src/utils/anime.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE_DIR = path.join(ROOT, '.cache');
 const ANILIST_CACHE = path.join(CACHE_DIR, 'anilist');
 const OUT_DIR = path.join(ROOT, 'src', 'data');
 const YEARS_DIR = path.join(OUT_DIR, 'years');
+const BATTLE_DIR = path.join(OUT_DIR, 'battle');
+const BATTLE_ALL = path.join(BATTLE_DIR, 'all.json');
+const BATTLE_META = path.join(BATTLE_DIR, 'meta.json');
 const BGM_CACHE = path.join(CACHE_DIR, 'bangumi-data.json');
 
 const START_YEAR = 1990;
 const END_YEAR = 2026;
 const PAGE_SIZE = 50;
 const TOP_PER_YEAR = 20;
+const BATTLE_PER_YEAR = 50;
 const THROTTLE_MS = 1200;
 const FORMATS = ['TV', 'TV_SHORT', 'MOVIE', 'OVA', 'ONA', 'SPECIAL'];
 
@@ -62,6 +67,7 @@ async function ensureDirs() {
   await mkdir(CACHE_DIR, { recursive: true });
   await mkdir(ANILIST_CACHE, { recursive: true });
   await mkdir(YEARS_DIR, { recursive: true });
+  await mkdir(BATTLE_DIR, { recursive: true });
 }
 
 async function readJson(file, fallback = null) {
@@ -237,6 +243,52 @@ async function fetchYearFromAniList(year) {
   return results;
 }
 
+const BRACKET_SIZE = 32;
+
+async function writeBattleData(battleByYear) {
+  const existing = await readJson(BATTLE_ALL, []);
+  const merged = new Map();
+
+  for (const item of Array.isArray(existing) ? existing : []) {
+    if (battleByYear.has(item.year)) continue;
+    const list = merged.get(item.year) || [];
+    list.push(item);
+    merged.set(item.year, list);
+  }
+  for (const [year, list] of battleByYear) merged.set(year, list);
+
+  const all = [];
+  const counts = {};
+  for (const year of [...merged.keys()].sort((a, b) => a - b)) {
+    const list = (merged.get(year) || [])
+      .sort((a, b) => b.pop - a.pop)
+      .slice(0, BATTLE_PER_YEAR);
+    counts[year] = list.length;
+    all.push(...list);
+  }
+
+  await writeFile(BATTLE_ALL, JSON.stringify(all));
+  await writeFile(
+    BATTLE_META,
+    JSON.stringify(
+      {
+        generatedAt: new Date().toISOString(),
+        start: START_YEAR,
+        end: END_YEAR,
+        perYear: counts,
+        total: all.length,
+        bracketSize: BRACKET_SIZE,
+        sources: ['AniList', 'bangumi-data (CC BY 4.0)'],
+      },
+      null,
+      2,
+    ),
+  );
+
+  const thin = Object.entries(counts).filter(([, count]) => count < BRACKET_SIZE);
+  return { total: all.length, thin };
+}
+
 function buildMeta(yearsMap) {
   const counts = {};
   let total = 0;
@@ -264,26 +316,45 @@ async function main() {
     ? [onlyYear]
     : Array.from({ length: END_YEAR - START_YEAR + 1 }, (_, i) => START_YEAR + i);
 
+  const battleByYear = new Map();
+
   for (const year of yearsToFetch) {
     if (year < START_YEAR || year > END_YEAR) throw new Error(`年份超出范围: ${year}`);
     console.log(`\n[${year}] 拉取中…`);
     const media = await fetchYearFromAniList(year);
     const entries = [];
     const seen = new Set();
+    let excluded = 0;
 
     for (const item of media) {
       const assignedYear = item.seasonYear || item.startDate?.year;
       if (assignedYear !== year || seen.has(item.id)) continue;
       seen.add(item.id);
+      if (
+        isExcludedTitle(
+          item.title?.romaji,
+          item.title?.english,
+          item.title?.native,
+          item.title?.chinese,
+          ...(item.synonyms || []),
+        )
+      ) {
+        excluded++;
+        continue;
+      }
       entries.push(toEntry(item, lookup));
     }
 
     entries.sort((a, b) => b.pop - a.pop);
     const topEntries = entries.slice(0, TOP_PER_YEAR);
+    battleByYear.set(
+      year,
+      entries.slice(0, BATTLE_PER_YEAR).map((entry) => ({ ...entry, year })),
+    );
     const topWithCn = topEntries.filter((entry) => entry.cn).length;
     await writeFile(path.join(YEARS_DIR, `${year}.json`), JSON.stringify(topEntries));
     console.log(
-      `[${year}] 热门 ${topEntries.length} 部 / 候选 ${entries.length}，中文名 ${topWithCn} 部 (${Math.round((topWithCn / Math.max(topEntries.length, 1)) * 100)}%)`,
+      `[${year}] 热门 ${topEntries.length} 部 / 候选 ${entries.length}，中文名 ${topWithCn} 部 (${Math.round((topWithCn / Math.max(topEntries.length, 1)) * 100)}%)${excluded ? `，已排除 ${excluded} 部` : ''}`,
     );
   }
 
@@ -294,7 +365,12 @@ async function main() {
   }
   const meta = buildMeta(Object.fromEntries(years));
   await writeFile(path.join(OUT_DIR, 'meta.json'), JSON.stringify(meta, null, 2));
+  const battle = await writeBattleData(battleByYear);
   console.log(`\n完成：${meta.total} 部，数据位于 src/data/years/`);
+  console.log(`大乱斗候选池：${battle.total} 部（每年最多 ${BATTLE_PER_YEAR}），位于 src/data/battle/all.json`);
+  if (battle.thin.length) {
+    console.warn(`  以下年份不足 ${BRACKET_SIZE} 部：`, battle.thin.map(([y, c]) => `${y}(${c})`).join(' '));
+  }
 }
 
 main().catch((err) => {

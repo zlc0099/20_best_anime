@@ -2,12 +2,16 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { toBlob } from 'html-to-image';
 import PosterCanvas from './PosterCanvas.vue';
+import CrowdStats from './CrowdStats.vue';
 import { showToast } from '../composables/useToast.js';
 import { safeFilename } from '../utils/anime.js';
 
 const props = defineProps({
   nickname: { type: String, default: '' },
   items: { type: Array, default: () => [] },
+  statsEnabled: { type: Boolean, default: false },
+  submitState: { type: String, default: 'idle' },
+  focusYears: { type: Array, default: () => [] },
 });
 const emit = defineEmits(['back', 'reset']);
 
@@ -40,6 +44,18 @@ const coverStatus = computed(() => {
   }
   if (coverFailed.value) return `有 ${coverFailed.value} 张封面未载入，已用文字占位。`;
   return '';
+});
+
+const submitText = computed(() => {
+  if (!props.statsEnabled) return '';
+  const texts = {
+    pending: '正在把这份番单匿名计入众人榜单…',
+    done: '已匿名计入“大家都在看”，不含昵称。',
+    duplicate: '这份番单此前已计入，无需重复提交。',
+    off: '你已关闭计入，本次选择不参与众人榜单。',
+    error: '未能计入众人榜单（网络或服务不可用），海报不受影响。',
+  };
+  return texts[props.submitState] || '';
 });
 
 watch(
@@ -171,13 +187,16 @@ async function makeBlob() {
   await Promise.all(images.map((image) => image.decode?.().catch(() => {})));
   await nextTick();
   const height = node.offsetHeight || posterHeight.value;
+  const background =
+    getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() ||
+    '#0b0d0f';
   const blob = await toBlob(node, {
     width: POSTER_WIDTH,
     height,
     canvasWidth: POSTER_WIDTH,
     canvasHeight: height,
     pixelRatio: 1,
-    backgroundColor: '#eaf5fd',
+    backgroundColor: background,
     cacheBust: true,
   });
   if (!blob) throw new Error('图片生成失败');
@@ -303,6 +322,8 @@ async function share() {
           {{ coverStatus }}
         </p>
 
+        <p v-if="submitText" class="submit-status" :class="submitState">{{ submitText }}</p>
+
         <p class="poster-note">
           手机端如果没有自动下载，可以长按海报保存。<br />
           封面来自 AniList，仅用于这张个人番单。
@@ -313,5 +334,7 @@ async function share() {
         </button>
       </div>
     </div>
+
+    <CrowdStats v-if="statsEnabled" :focus-years="focusYears" />
   </section>
 </template>

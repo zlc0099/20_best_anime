@@ -1,18 +1,32 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
+import CrowdStats from './CrowdStats.vue';
 import { MAX_NAME_LENGTH } from '../composables/useDraft.js';
+import { BRACKET_SIZE, BATTLE_YEARS, rangePoolSize } from '../composables/useBattle.js';
 
 const props = defineProps({
   initialNickname: { type: String, default: '' },
   hasDraft: { type: Boolean, default: false },
+  statsEnabled: { type: Boolean, default: false },
+  contribute: { type: Boolean, default: true },
+  battleLoading: { type: Boolean, default: false },
 });
-const emit = defineEmits(['start', 'reset', 'random-start']);
+const emit = defineEmits([
+  'start',
+  'reset',
+  'random-start',
+  'contribute-change',
+  'battle-start',
+]);
 
 const nickname = ref(props.initialNickname || '');
 const count = computed(() => Array.from(nickname.value).length);
 const trimmed = computed(() => nickname.value.trim());
 const randomCounts = [10, 15, 20];
 const randomCount = ref(15);
+const rangeFrom = ref(2016);
+const rangeTo = ref(2025);
+const battlePool = computed(() => rangePoolSize([rangeFrom.value, rangeTo.value]));
 
 watch(
   () => props.initialNickname,
@@ -35,6 +49,26 @@ function submit() {
 function randomStart() {
   if (!trimmed.value) return;
   emit('random-start', trimmed.value, randomCount.value);
+}
+
+function changeRangeFrom(event) {
+  rangeFrom.value = Number(event.target.value);
+  if (rangeTo.value < rangeFrom.value) rangeTo.value = rangeFrom.value;
+}
+
+function changeRangeTo(event) {
+  rangeTo.value = Number(event.target.value);
+  if (rangeFrom.value > rangeTo.value) rangeFrom.value = rangeTo.value;
+}
+
+function startBattle(mode) {
+  if (!trimmed.value || props.battleLoading) return;
+  if (mode === 'range' && battlePool.value < BRACKET_SIZE) return;
+  emit('battle-start', {
+    nickname: trimmed.value,
+    mode,
+    range: mode === 'range' ? [rangeFrom.value, rangeTo.value] : null,
+  });
 }
 </script>
 
@@ -130,7 +164,71 @@ function randomStart() {
                 </button>
               </div>
             </div>
+
+            <div class="mode-option mode-battle">
+              <div class="mode-copy">
+                <b>动漫大乱斗</b>
+                <span>
+                  {{ BRACKET_SIZE }} 部随机对阵，32 强 → 16 强 → 8 强 → 半决赛 → 决赛，
+                  每场二选一，最后出一张冠军对阵图。
+                </span>
+              </div>
+
+              <div class="battle-controls">
+                <div class="battle-range">
+                  <label class="battle-select">
+                    <span>年份范围</span>
+                    <select :value="rangeFrom" @change="changeRangeFrom">
+                      <option v-for="year in BATTLE_YEARS" :key="`from-${year}`" :value="year">
+                        {{ year }}
+                      </option>
+                    </select>
+                    <i aria-hidden="true">—</i>
+                    <select :value="rangeTo" @change="changeRangeTo">
+                      <option v-for="year in BATTLE_YEARS" :key="`to-${year}`" :value="year">
+                        {{ year }}
+                      </option>
+                    </select>
+                  </label>
+                  <span class="battle-pool">
+                    {{ rangeFrom }}—{{ rangeTo }} 共 {{ battlePool }} 部候选，随机抽 {{ BRACKET_SIZE }} 部
+                  </span>
+                </div>
+
+                <div class="battle-actions">
+                  <button
+                    class="btn btn-primary"
+                    type="button"
+                    :disabled="!trimmed || battleLoading || battlePool < BRACKET_SIZE"
+                    @click="startBattle('range')"
+                  >
+                    {{ battleLoading ? '抽签中…' : '按年份范围开战' }}
+                    <span class="btn-arrow" aria-hidden="true">›</span>
+                  </button>
+                  <button
+                    class="btn btn-glass"
+                    type="button"
+                    :disabled="!trimmed || battleLoading"
+                    @click="startBattle('random')"
+                  >
+                    全随机 {{ BRACKET_SIZE }} 部
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <label v-if="statsEnabled" class="contribute-row">
+            <input
+              type="checkbox"
+              :checked="contribute"
+              @change="emit('contribute-change', $event.target.checked)"
+            />
+            <span>
+              把我的番单匿名计入“大家都在看”
+              <small>只上传年份与作品 id，不含昵称；取消勾选则完全不提交。</small>
+            </span>
+          </label>
         </div>
       </form>
     </div>
@@ -168,5 +266,7 @@ function randomStart() {
         <span class="dialogue-hint">慢慢填，不着急。</span>
       </div>
     </aside>
+
+    <CrowdStats v-if="statsEnabled" />
   </section>
 </template>

@@ -39,3 +39,18 @@ export function safeFilename(name) {
     .slice(0, 24);
   return cleaned || '我的番单';
 }
+
+// 本站不收录《我的英雄学院》系列（含剧场版与衍生作）：
+// 作者以侵华日军部队番号“731”命名反派单位，作品已在中国大陆下架。
+export const EXCLUDED_TITLE_PATTERNS = [
+  /boku no hero academia/i,
+  /my hero academia/i,
+  /我的英雄学院/,
+  /ヒーローアカデミア/,
+  /ヒロアカ/,
+];
+
+export function isExcludedTitle(...titles) {
+  const blob = titles.filter(Boolean).join(' ');
+  return blob ? EXCLUDED_TITLE_PATTERNS.some((pattern) => pattern.test(blob)) : false;
+}

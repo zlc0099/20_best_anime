@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0d0f" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>404 · 二十年番单</title>
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem('anime-theme');
+          document.documentElement.dataset.theme = saved === 'paper' ? 'paper' : 'dark';
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <style>
+      :root,
+      html[data-theme='dark'] {
+        color-scheme: dark;
+        --bg: #0b0d0f;
+        --panel: rgba(17, 19, 21, 0.88);
+        --text: #f2f3f4;
+        --text-2: #a5a9ad;
+        --text-3: #7d838a;
+        --border: #353a3f;
+        --divider: #262a2e;
+        --accent: #f5a623;
+        --accent-ink: #0b0d0f;
+        --accent-text: #f5a623;
+        --dot: rgba(242, 243, 244, 0.055);
+        --display: 'Barlow Condensed', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        --body: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        --mono: 'JetBrains Mono', 'Noto Sans SC', Consolas, monospace;
+      }
+      html[data-theme='paper'] {
+        color-scheme: light;
+        --bg: #f2efe9;
+        --panel: rgba(242, 239, 233, 0.9);
+        --text: #1a1d1f;
+        --text-2: #4c5155;
+        --text-3: #62686d;
+        --border: #d0cabe;
+        --divider: #e0dbd1;
+        --accent: #f5a623;
+        --accent-ink: #1a1d1f;
+        --accent-text: #965a00;
+        --dot: rgba(26, 29, 31, 0.045);
+        --display: 'Barlow Condensed', 'Noto Serif SC', 'Songti SC', SimSun, serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background-color: var(--bg);
+        background-image: radial-gradient(var(--dot) 0.55px, transparent 0.55px);
+        background-size: 4px 4px;
+        color: var(--text);
+        font-family: var(--body);
+        font-size: 15px;
+        line-height: 1.8;
+      }
+      .head,
+      .foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 18px 24px;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        color: var(--text-3);
+      }
+      .head {
+        position: sticky;
+        z-index: 10;
+        top: 0;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .foot {
+        margin-top: 64px;
+        border-top: 1px solid var(--border);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--text);
+      }
+      .brand b {
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 600;
+      }
+      .brand i {
+        width: 9px;
+        height: 9px;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+      }
+      .theme {
+        height: 28px;
+        padding: 0 8px;
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        background: transparent;
+        color: var(--text-2);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+      }
+      .theme:hover {
+        border-color: var(--accent);
+        color: var(--accent-text);
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 96px 24px 48px;
+      }
+      .tag {
+        display: inline-block;
+        margin: 0 0 20px;
+        padding: 2px 7px;
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        color: var(--text-2);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+      }
+      .code {
+        margin: 0;
+        color: var(--accent-text);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+      h1 {
+        margin: 12px 0 16px;
+        color: var(--text);
+        font-family: var(--display);
+        font-size: clamp(40px, 7vw, 64px);
+        font-weight: 600;
+        line-height: 1.02;
+        letter-spacing: 0.01em;
+      }
+      p {
+        max-width: 560px;
+        margin: 0 0 24px;
+        color: var(--text-2);
+        font-size: 14px;
+        line-height: 1.8;
+      }
+      a.btn {
+        display: inline-flex;
+        align-items: center;
+        height: 34px;
+        padding: 0 14px;
+        border: 1px solid var(--accent);
+        border-radius: 2px;
+        color: var(--accent-ink);
+        background: var(--accent);
+        font-family: var(--body);
+        font-size: 12px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      a.btn:hover {
+        background: var(--accent);
+        color: var(--accent-ink);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      @media (max-width: 600px) {
+        .head,
+        .foot {
+          padding: 16px;
+        }
+        main {
+          padding-top: 64px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="head">
+      <div class="brand"><i aria-hidden="true"></i><b>二十年番单</b></div>
+      <button class="theme" type="button" onclick="toggleTheme()">深色</button>
+    </header>
+    <main>
+      <p class="tag">404 / NOT FOUND</p>
+      <p class="code">ARCHIVE MISSING · 000</p>
+      <h1>这一页不在档案里。</h1>
+      <p>路径可能已被移动，或者从未存在。回到番单首页，从年份重新开始。</p>
+      <a class="btn" href="/20_best_anime/">返回番单</a>
+    </main>
+    <footer class="foot">
+      <span>二十年番单 · 20 Best Anime</span>
+      <span>数据：AniList · bangumi-data</span>
+    </footer>
+    <script>
+      function setTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        try {
+          localStorage.setItem('anime-theme', theme);
+        } catch {
+          /* ignore */
+        }
+        const button = document.querySelector('.theme');
+        if (button) button.textContent = theme === 'paper' ? '纸质' : '深色';
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', theme === 'paper' ? '#f2efe9' : '#0b0d0f');
+      }
+      function toggleTheme() {
+        setTheme(document.documentElement.dataset.theme === 'paper' ? 'dark' : 'paper');
+      }
+      setTheme(document.documentElement.dataset.theme);
+    </script>
+  </body>
+</html>

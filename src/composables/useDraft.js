@@ -1,4 +1,5 @@
 import { computed, reactive, watch } from 'vue';
+import { isExcludedTitle } from '../utils/anime.js';
 
 const STORAGE_KEY = 'anime-years.draft.v1';
 
@@ -17,6 +18,7 @@ function cleanPick(pick) {
   if (![pick.cn, pick.jp, pick.romaji].some((title) => typeof title === 'string' && title.trim())) {
     return null;
   }
+  if (isExcludedTitle(pick.cn, pick.jp, pick.romaji)) return null;
   return {
     id: pick.id,
     cn: typeof pick.cn === 'string' ? pick.cn : null,
