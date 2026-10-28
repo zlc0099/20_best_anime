@@ -398,9 +398,6 @@ function badgeClass(format) {
               {{ formatLabel(anime.format) }}
             </span>
             <span class="cover">
-              <span class="cover-placeholder" aria-hidden="true">
-                {{ displayTitle(anime).slice(0, 1) }}
-              </span>
               <img
                 v-if="anime.cover && !broken.has(anime.id)"
                 :src="anime.cover"

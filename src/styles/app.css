@@ -1465,16 +1465,6 @@ img {
   border-color: var(--accent);
 }
 
-.cover-placeholder {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--text-3);
-  font-family: var(--display);
-  font-size: 24px;
-}
-
 .card-badge {
   position: absolute;
   z-index: 2;

@@ -17,7 +17,6 @@ const rows = computed(() =>
     return {
       year,
       title,
-      initial: Array.from(title)[0] || '番',
       cover: props.covers?.[anime.id] || null,
       tone: decadeTone(year),
     };
@@ -60,7 +59,6 @@ function titleSize(title) {
           <figure v-for="row in rows" :key="row.year" class="p-cell">
             <div class="p-cover">
               <img v-if="row.cover" :src="row.cover" alt="" />
-              <span v-else class="p-cover-fallback" aria-hidden="true">{{ row.initial }}</span>
             </div>
             <figcaption
               class="p-title"
@@ -237,17 +235,6 @@ function titleSize(title) {
   object-fit: cover;
 }
 
-.p-cover-fallback {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(160deg, #eff9ff, #d8ecfa);
-  color: rgba(42, 127, 180, 0.55);
-  font-size: 50px;
-  font-weight: 700;
-}
-
 .p-title {
   display: -webkit-box;
   overflow: hidden;
@@ -373,13 +360,6 @@ function titleSize(title) {
   border-radius: var(--radius-sm);
   background: var(--panel-2);
   box-shadow: none;
-}
-
-.p-cover-fallback {
-  background: var(--panel-2);
-  color: var(--text-3);
-  font-family: var(--display);
-  font-size: 32px;
 }
 
 .p-title {
