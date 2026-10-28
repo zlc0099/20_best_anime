@@ -74,8 +74,7 @@ function isCurrent(group) {
       <span class="vn-badge plate-indigo">动漫大乱斗</span>
       <h1>32 部，一场一场<em class="accent">选到冠军</em>。</h1>
       <p class="lede">
-        {{ modeLabel }}。32 强 → 16 强 → 8 强 → 半决赛 → 决赛，共 {{ TOTAL_MATCHES }} 场，
-        每次二选一，随时可以撤回上一场。
+        {{ modeLabel }} · 共 {{ TOTAL_MATCHES }} 场，每次二选一，可随时撤回。
       </p>
       <div class="battle-progress">
         <span class="bar-num">{{ decidedCount }}<i>/{{ TOTAL_MATCHES }}</i></span>

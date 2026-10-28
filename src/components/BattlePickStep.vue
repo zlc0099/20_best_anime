@@ -115,8 +115,7 @@ function start() {
       <span class="vn-badge plate-indigo">自选 32 部</span>
       <h1>自己挑 {{ BRACKET_SIZE }} 部，<span class="accent">再乱序开打</span>。</h1>
       <p class="lede">
-        不限年份，从 {{ pool.length || 1800 }} 部候选里点选 32 部；选好后再打乱签位，
-        照样是 32 强 → 决赛的 31 场二选一。
+        不限年份，选满 {{ BRACKET_SIZE }} 部就开战，签位会重新打乱。
       </p>
     </header>
 

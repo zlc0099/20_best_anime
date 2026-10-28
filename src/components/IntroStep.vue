@@ -81,7 +81,7 @@ function startBattle(mode) {
       <h1>从三十七年里，<br />挑出你的<span class="accent">二十年</span>。</h1>
 
       <p class="lede">
-        1990 到 2026，选 10–20 年，每年只留一部。像读一本只属于你的视觉小说，把散落在时间里的喜欢，排成一张番单。
+        1990 到 2026，选 10–20 年，每年留一部，最后生成一张番单海报。
       </p>
 
       <form class="nickname-form vn-card" @submit.prevent="submit">
@@ -170,8 +170,7 @@ function startBattle(mode) {
               <div class="mode-copy">
                 <b>动漫大乱斗</b>
                 <span>
-                  32 部对阵（年份范围 / 全随机 / 自选 32 部），32 强 → 16 强 → 8 强 → 半决赛 → 决赛，
-                  每场二选一，最后出一张冠军对阵图。
+                  32 部单败淘汰，一场场二选一，最后导出一张冠军对阵图。
                 </span>
               </div>
 
@@ -235,7 +234,7 @@ function startBattle(mode) {
             />
             <span>
               把我的番单匿名计入“大家都在看”
-              <small>只上传年份与作品 id，不含昵称；取消勾选则完全不提交。</small>
+              <small>只上传年份与作品 ID，不含昵称；取消勾选即不提交。</small>
             </span>
           </label>
         </div>
@@ -270,9 +269,9 @@ function startBattle(mode) {
       </div>
 
       <div class="vn-dialogue vn-dark">
-        <span class="vn-plate plate-emerald">旁白</span>
-        <p>“喜欢是私人的编年史。<br />把还记得的那一部，放回它出现的年份里。”</p>
-        <span class="dialogue-hint">慢慢填，不着急。</span>
+        <span class="vn-plate plate-emerald">流程</span>
+        <p>① 填昵称　② 选 10–20 年<br />③ 每年选一部　④ 生成海报</p>
+        <span class="dialogue-hint">想快一点？用随机年份或大乱斗。</span>
       </div>
     </aside>
 

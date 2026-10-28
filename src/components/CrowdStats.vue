@@ -135,9 +135,9 @@ onBeforeUnmount(() => {
           榜单暂时读取不到。<button class="text-link" type="button" @click="load(true)">重试</button>
         </template>
         <template v-else-if="totalSubmissions">
-          {{ totalSubmissions }} 份匿名番单 · 占比 = 该作品被选次数 ÷ 该年代总选择次数
+          {{ totalSubmissions }} 份匿名番单 · 占比按该年代选择次数计算
         </template>
-        <template v-else>还没有人提交番单，你的第一份就会出现在这里。</template>
+        <template v-else>还没有人提交，你的第一份会出现在这里。</template>
       </p>
     </div>
 

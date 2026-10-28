@@ -242,7 +242,7 @@ function badgeClass(format) {
       <div>
         <span class="vn-badge plate-indigo">第二步</span>
         <h1>每年选一部</h1>
-        <p class="lede">每年提供热度前 20 部，挑一部最喜欢的。选过之后会自动跳到下一个空年份。</p>
+        <p class="lede">每年从热度前 20 部里挑一部，选完自动跳到下一个空年份。</p>
       </div>
       <div class="picks-progress" aria-live="polite">
         <b>{{ selectedCount }}</b><span>/{{ years.length }} 部</span>
